@@ -1,0 +1,19 @@
+{
+  "appSelected": {
+    "appId": "5765880207856140205",
+    "appName": "JoyFit",
+    "deviceTypes": [
+      {
+        "appAdapters": "5",
+        "deviceType": 4
+      }
+    ],
+    "enableSites": "CN",
+    "installationFree": 0,
+    "packageType": 7,
+    "projectId": "461323198429115233",
+    "projectName": "JoyFit运动健康APP项目",
+    "siteId": "CN"
+  },
+  "teamId": "30086000670348132"
+}
