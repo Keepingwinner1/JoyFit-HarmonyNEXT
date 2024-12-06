@@ -1,6 +1,20 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "storePassword": "0000001A50CC1C43A0BBF2EC7A6A13C8450CF09D22D9D6F8CB39BC244F1357429E17E55AC967FD26454C",
+          "certpath": "C:/Users/lenovo/Desktop/JoyFit/JoyFit-key/debug_chl.cer",
+          "keyAlias": "JoyFit",
+          "keyPassword": "0000001A2359A8C3199ACBD51CDAC2C0C7FB149EB1E3B5766AC31506DC316985001EF522C62B1BF834F4",
+          "profile": "C:/Users/lenovo/Desktop/JoyFit/JoyFit-key/JoyFitDebug.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:/Users/lenovo/Desktop/JoyFit/JoyFit-key/.p12"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",
@@ -17,7 +31,7 @@
     ],
     "buildModeSet": [
       {
-        "name": "debug",
+        "name": "debug"
       },
       {
         "name": "release"
@@ -26,8 +40,8 @@
   },
   "modules": [
     {
-      "name": "entry",
-      "srcPath": "./entry",
+      "name": "phone",
+      "srcPath": "./products/phone",
       "targets": [
         {
           "name": "default",
@@ -36,6 +50,38 @@
           ]
         }
       ]
+    },
+    {
+      "name": "home",
+      "srcPath": "./features/home"
+    },
+    {
+      "name": "scheme",
+      "srcPath": "./features/scheme"
+    },
+    {
+      "name": "mine",
+      "srcPath": "./features/mine",
+    },
+    {
+      "name": "login",
+      "srcPath": "./features/login",
+    },
+    {
+      "name": "question",
+      "srcPath": "./features/question"
+    },
+    {
+      "name": "network",
+      "srcPath": "./commons/network",
+    },
+    {
+      "name": "uicomponents",
+      "srcPath": "./commons/uicomponents",
+    },
+    {
+      "name": "utils",
+      "srcPath": "./commons/utils",
     }
   ]
 }
