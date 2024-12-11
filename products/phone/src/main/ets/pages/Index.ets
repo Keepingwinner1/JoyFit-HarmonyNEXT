@@ -1,6 +1,5 @@
 import { ZRouter } from '@hzw/zrouter';
 import { CommonConst, NavName } from 'utils';
-import { OhosSmartDialog } from 'ohos_smart_dialog';
 import { loadingView } from 'uicomponents';
 
 /**
@@ -24,8 +23,6 @@ struct Index {
       .width(CommonConst.FULL_PARENT)
       .height(CommonConst.FULL_PARENT)
 
-      // here dialog init
-      OhosSmartDialog({ loadingBuilder: loadingView })
 
     }.width(CommonConst.FULL_PARENT)
     .height(CommonConst.FULL_PARENT)
@@ -34,7 +31,7 @@ struct Index {
 
   /** 返回事件监听 */
   onBackPress(): boolean | void {
-    return OhosSmartDialog.onBackPressed()()
+    //return OhosSmartDialog.onBackPressed()()
   }
 }
 

@@ -2,8 +2,6 @@ import { Route, ZRouter } from "@hzw/zrouter"
 import { AppUtil, ToastUtil } from "@pura/harmony-utils"
 import { HomeView } from "home"
 import { MineView } from "mine"
-// import { QuestionView } from "question"
-// import { SchemeView } from "scheme"
 import { TabModel } from "uicomponents"
 import { CommonConst, NavName } from "utils"
 import { tabBarModel } from "../model/MainModel"
@@ -78,10 +76,10 @@ export struct MainPage {
       HomeView()
     } else if (item.index == 1) {
       // 问答
-      QuestionView()
+      //QuestionView()
     } else if (item.index == 2) {
       // 体系
-      SchemeView()
+      //SchemeView()
     } else if (item.index == 3) {
       // 我的
       MineView()
