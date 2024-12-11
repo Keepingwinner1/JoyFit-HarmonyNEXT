@@ -3,7 +3,6 @@ import { CommonConst, NavName } from "utils";
 
 
 /**
- * Author:J
  * Describe: 启动页
  */
 @Preview
@@ -11,14 +10,13 @@ import { CommonConst, NavName } from "utils";
 @Route({ name: NavName.SPLASH_PAGE })
 export struct SplashPage {
   aboutToAppear(): void {
-    // 跳转到主页面
-    ZRouter.getInstance().navigation(NavName.MAIN_PAGE)
     // 跳转到登录页面
     // ZRouter.getInstance().navigation(NavName.LOGIN_VIEW)
-    // todo 测试
-    // ZRouter.getInstance().navigation('TestNetView')
+    // 跳转到主页面
+    //ZRouter.getInstance().navigation(NavName.MAIN_PAGE)
 
-    ZRouter.getInstance().removeByName(NavName.SPLASH_PAGE)
+    // 测试
+    ZRouter.getInstance().removeByName(NavName.TEST_VIEW)
   }
 
   build() {

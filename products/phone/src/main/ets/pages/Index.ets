@@ -1,9 +1,7 @@
 import { ZRouter } from '@hzw/zrouter';
 import { CommonConst, NavName } from 'utils';
-import { loadingView } from 'uicomponents';
 
 /**
- * Author:J
  * Describe: 主要针对于 Navigation
  */
 @Entry
@@ -15,7 +13,7 @@ struct Index {
       Navigation(ZRouter.getNavStack()) {
       }
       .onAppear(() => {
-        // 跳转启页面
+        // 跳转启动页面
         ZRouter.getInstance().navigation(NavName.SPLASH_PAGE)
       })
       .hideTitleBar(true)

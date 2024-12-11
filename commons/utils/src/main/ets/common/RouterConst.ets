@@ -10,4 +10,5 @@ export class NavName {
   static readonly QUESTION_VIEW = 'questionView' //问答页面
   static readonly SCHEME_VIEW = 'schemeView' //体系页面
   static readonly MINE_VIEW = 'mineView' //我的页面
+  static readonly TEST_VIEW = 'testView' //测试页面
 }

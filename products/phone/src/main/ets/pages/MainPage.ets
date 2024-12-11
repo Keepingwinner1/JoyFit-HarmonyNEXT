@@ -7,7 +7,6 @@ import { CommonConst, NavName } from "utils"
 import { tabBarModel } from "../model/MainModel"
 
 /**
- * Author:J
  * Describe: 主页
  */
 // 定义一个状态变量来记录上次点击返回键的时间
