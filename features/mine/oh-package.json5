@@ -6,8 +6,8 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "network": 'file:../../commons/network',
     "uicomponents": 'file:../../commons/uicomponents',
-    "utils": 'file:../../commons/utils'
+    "utils": 'file:../../commons/utils',
+    "@hw-agconnect/auth": "^1.0.2"
   }
 }

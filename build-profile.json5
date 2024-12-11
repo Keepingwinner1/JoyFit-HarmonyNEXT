@@ -56,32 +56,24 @@
       "srcPath": "./features/home"
     },
     {
-      "name": "scheme",
-      "srcPath": "./features/scheme"
-    },
-    {
       "name": "mine",
-      "srcPath": "./features/mine",
-    },
-    {
-      "name": "login",
-      "srcPath": "./features/login",
-    },
-    {
-      "name": "question",
-      "srcPath": "./features/question"
-    },
-    {
-      "name": "network",
-      "srcPath": "./commons/network",
+      "srcPath": "./features/mine"
     },
     {
       "name": "uicomponents",
-      "srcPath": "./commons/uicomponents",
+      "srcPath": "./commons/uicomponents"
     },
     {
       "name": "utils",
-      "srcPath": "./commons/utils",
+      "srcPath": "./commons/utils"
+    },
+    {
+      "name": "record",
+      "srcPath": "./features/record"
+    },
+    {
+      "name": "plan",
+      "srcPath": "./features/plan"
     }
   ]
 }

@@ -1,11 +1,9 @@
 **当前适配版本为 5.0.0(12)**
 
 ## 环境
-- [点击下载最新IDE](https://developer.huawei.com/consumer/cn/download/)
-- DevEco Studio 5.0.1 Beta3
-    - Build Version: 5.0.5.200, built on November 9, 2024
-- Harmony OS Api 5.0.0(12)
-- hvigor 5.0.0
+- DevEco Studio 5.0.1 
+    - Build Version: 5.0.5.300, built on November 9, 2024
+- Harmony OS SDK 5.0.1(API 13)
 
 ### 工程目录
 
@@ -27,9 +25,8 @@
    |---question                                   // 问答
    |---scheme                                     // 体系
    |---mine                                       // 我的
-   |---login                                      // 登录 
    libs                                           # 本地三方依赖库
-   products                                       # 产品定制层，作为不同设备或场景应用入口，例如phone、tv等
+   products                                # 产品定制层，作为不同设备或场景应用入口，例如phone、tv等
    |---phone                                      // 手机
    |   |---app                                    // 全局初始化配置
    |   |---bean                                   // 数据模型
@@ -59,16 +56,3 @@
 
 本项目基于 [Apache License](https://gitee.com/jiaojiaoone/explore-harmony-next/blob/master/LICENSE.txt) ，请自由地享受和参与开源。
 
-## 源码
-
-- gitee：https://gitee.com/jiaojiaoone/explore-harmony-next.git
-- github：https://github.com/JasonYinH/ExploreHarmonyNext.git
-
-## 博客地址
-
-- csdn：https://blog.csdn.net/qq_40533422?type=blog
-- juejin: https://juejin.cn/user/1151943919282350/posts
-
-## 交流
-
-使用有疑问或建议， **请提交issue（这样可以统一收集问题，方便更多人查阅，另外会也第一时间回复处理）** ，或者(+v: yinshiyuba)。

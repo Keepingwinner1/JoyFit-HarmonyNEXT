@@ -7,6 +7,12 @@
       "tablet",
       "2in1"
     ],
-    "routerMap": "$profile:route_map"
+    "metadata": [ // 配置信息如下
+      {
+        "name": "client_id",
+        "value": "112754605"
+      }
+    ]
+    //"routerMap": "$profile:route_map"
   }
 }
