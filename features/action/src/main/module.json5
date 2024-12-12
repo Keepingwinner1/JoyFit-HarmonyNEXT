@@ -1,6 +1,6 @@
 {
   "module": {
-    "name": "home",
+    "name": "action",
     "type": "har",
     "deviceTypes": [
       "default",

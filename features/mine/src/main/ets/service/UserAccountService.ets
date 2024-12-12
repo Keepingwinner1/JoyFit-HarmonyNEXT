@@ -3,11 +3,12 @@ import  AccountInfo  from '../model/AccountInfo'
 import { UserInfo } from '../model/UserInfo'
 import { VerifyCodeAction } from '@hw-agconnect/auth';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { cloudCommon } from '@kit.CloudFoundationKit';
+import { cloudCommon, cloudDatabase } from '@kit.CloudFoundationKit';
 
 export class UserAccountService {
   //private account: AccountInfo = AccountInfo.createFromCloud();
   private static instance: UserAccountService | null = null;
+  private agcDataBase: cloudDatabase.DatabaseZone = cloudDatabase.zone('joyfit');
 
   private constructor() {}
 
@@ -49,8 +50,8 @@ export class UserAccountService {
       verifyCode: account.verifyingCode
     }).then(result => {
       //创建账号成功后，系统会自动登录，无需再次调用登录接口
+      let uid = result.getUser().getUid()
       //向数据库插入注册用户信息
-
 
       return result.getUser();
     }).catch(()=>{

@@ -52,8 +52,8 @@
       ]
     },
     {
-      "name": "home",
-      "srcPath": "./features/home"
+      "name": "action",
+      "srcPath": "./features/action"
     },
     {
       "name": "mine",

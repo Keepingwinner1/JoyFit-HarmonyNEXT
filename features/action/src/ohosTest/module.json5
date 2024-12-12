@@ -1,6 +1,6 @@
 {
   "module": {
-    "name": "home_test",
+    "name": "action_test",
     "type": "feature",
     "deviceTypes": [
       "default",
