@@ -7,9 +7,7 @@
   "license": "",
   "dependencies": {
     // 本地源码引入，可引入本地其他模块的源码
-    "action": "file:../../features/action",
-    "plan": "file:../../features/plan",
-    "record": "file:../../features/record",
+    "exercise": "file:../../features/exercise",
     "mine": "file:../../features/mine",
     "uicomponents": 'file:../../commons/uicomponents',
     "utils": 'file:../../commons/utils',

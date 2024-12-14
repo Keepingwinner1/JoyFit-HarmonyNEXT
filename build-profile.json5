@@ -52,10 +52,6 @@
       ]
     },
     {
-      "name": "action",
-      "srcPath": "./features/action"
-    },
-    {
       "name": "mine",
       "srcPath": "./features/mine"
     },
@@ -68,12 +64,8 @@
       "srcPath": "./commons/utils"
     },
     {
-      "name": "record",
-      "srcPath": "./features/record"
-    },
-    {
-      "name": "plan",
-      "srcPath": "./features/plan"
+      "name": "exercise",
+      "srcPath": "./features/exercise"
     }
   ]
 }
