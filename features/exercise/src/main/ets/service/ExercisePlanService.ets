@@ -9,6 +9,8 @@ import { runningPlanBuilder } from '../model/runningPlanBuilder';
 import { workoutPlanBuilder } from '../model/workoutPlanBuilder';
 import { PlanTask } from '../bean/PlanTask';
 import { UUIDGenerator } from 'utils';
+import { RunningRecord } from '../bean/RunningRecord';
+import { WorkoutRecord } from '../bean/WorkoutRecord';
 
 export abstract class ExercisePlanService {
 
@@ -24,7 +26,9 @@ export abstract class ExercisePlanService {
   public abstract getAbandonedPlan(userID:string);
   public abstract deleteNotStartedPlan(plan:RunningPlan|WorkoutPlan);
   public abstract abandonInProgressPlan(plan:RunningPlan|WorkoutPlan);
-
+  public abstract uploadFeelings(record:RunningRecord|WorkoutRecord);
+  public abstract getFeelingsByPlan(userID:string,planID:string);
+  public abstract getRecords(userID:string,planID:string);
 
   public async getActionsByPlanID(planID: string){
     let condition = new cloudDatabase.DatabaseQuery(PlanAction);

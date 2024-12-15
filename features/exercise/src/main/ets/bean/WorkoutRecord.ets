@@ -12,7 +12,7 @@ class WorkoutRecord extends cloudDatabase.DatabaseObject {
   public RecordDate: Date | undefined;  // Date类型
   public Calories: number | undefined;  // Double类型
   public PlanID: number | undefined;  // Integer类型
-  public State: string |undefined;
+
 }
 
 export { WorkoutRecord };

@@ -12,7 +12,6 @@ export abstract class PlanBuilder {
   public DayOfWeek: string | undefined;
   public StartDate: Date | undefined;
   public EndDate: Date | undefined;
-  public ExecutionProgress: number | undefined;
   public SelectedActions :Action[] = [];
 
   setPlanID(PlanID:string):PlanBuilder{
@@ -60,12 +59,6 @@ export abstract class PlanBuilder {
   // 设置 StartDate
   setStartDate(StartDate: Date): PlanBuilder {
     this.StartDate = StartDate;
-    return this;
-  }
-
-  // 设置 ExecutionProgress
-  setExecutionProgress(ExecutionProgress: number): PlanBuilder {
-    this.ExecutionProgress = ExecutionProgress;
     return this;
   }
 

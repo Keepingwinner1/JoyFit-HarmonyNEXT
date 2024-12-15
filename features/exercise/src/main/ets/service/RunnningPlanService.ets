@@ -4,6 +4,7 @@ import { cloudDatabase } from '@kit.CloudFoundationKit';
 import {runningPlan} from '../model/runningPlan'
 import { PlanTask } from '../bean/PlanTask';
 import {UUIDGenerator} from 'utils'
+import { RunningRecord } from '../bean/RunningRecord';
 
 export class RunningPlanService extends ExercisePlanService{
 
@@ -47,7 +48,6 @@ export class RunningPlanService extends ExercisePlanService{
     planContent.EndDate =plan.EndDate;
     planContent.DayOfWeek =plan.DayOfWeek;
     planContent.StartDate =plan.StartDate;
-    planContent.ExecutionProgress =plan.ExecutionProgress;
     planContent.GoalOfTotalTime= plan.GoalOfTotalTime;
     planContent.GoalOfTotalMiles =plan.GoalOfTotalMiles;
     planContent.GoalOfSpeed = plan.GoalOfSpeed;
@@ -134,6 +134,32 @@ export class RunningPlanService extends ExercisePlanService{
       console.info(`Failed in abandoning a plan: ${JSON.stringify(err)} `);
       return false;
     }
+  }
+
+  public async uploadFeelings(record: RunningRecord) {
+    try{
+      await this.agcDataBase?.upsert(record);
+      console.info(`Succeeded in uploading a record.`);
+      return true;
+    }
+    catch(err){
+      console.info(`Failed in uploading a record: ${JSON.stringify(err)} `);
+      return false;
+    }
+  }
+
+  public async getFeelingsByPlan(userID: string, planID: string) {
+    let condition = new cloudDatabase.DatabaseQuery(RunningRecord);
+    condition.equalTo('UserID',userID).and().equalTo('PlanID',planID);
+    const planArray: RunningRecord[]= await this.agcDataBase.query(condition);
+    return planArray;
+  }
+
+  public async getRecords(userID: string, planID: string) {
+    let condition = new cloudDatabase.DatabaseQuery(PlanTask);
+    condition.equalTo('UserID',userID).and().equalTo('PlanID',planID).and().equalTo('TaskType','running');
+    const planArray: PlanTask[]= await this.agcDataBase.query(condition);
+    return planArray;
   }
 
 }

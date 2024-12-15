@@ -12,7 +12,6 @@ export abstract class exercisePlan {
   public DayOfWeek: string | undefined;  // String类型,0到6分别代表周日到周六，以#分割
   public StartDate: Date | undefined;  // Date类型
   public EndDate: Date | undefined;  // Date类型
-  public ExecutionProgress: number | undefined; // Double类型
   public includedActions : action[] | undefined;
 }
 

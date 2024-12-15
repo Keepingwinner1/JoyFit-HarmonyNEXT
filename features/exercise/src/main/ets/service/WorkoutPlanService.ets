@@ -5,6 +5,7 @@ import { workoutPlan } from'../model/workoutPlan'
 import { PlanAction } from '../bean/PlanAction';
 import { action } from '../model/action';
 import { PlanTask } from '../bean/PlanTask';
+import { WorkoutRecord } from '../bean/WorkoutRecord';
 
 export class WorkoutPlanService extends ExercisePlanService {
 
@@ -31,7 +32,6 @@ export class WorkoutPlanService extends ExercisePlanService {
     planContent.EndDate =plan.EndDate;
     planContent.DayOfWeek =plan.DayOfWeek;
     planContent.StartDate =plan.StartDate;
-    planContent.ExecutionProgress =plan.ExecutionProgress;
     planContent.RestTimeBetweenSets = plan.RestTimeBetweenSets;
     planContent.RestTimeBetweenExercises =plan.RestTimeBetweenExercises;
     return planContent;
@@ -134,7 +134,7 @@ export class WorkoutPlanService extends ExercisePlanService {
       return true;
     }
     catch(err){
-      console.info(`Failed in deleting a plan: JSON.stringify(err)) `);
+      console.info(`Failed in deleting a plan: ${JSON.stringify(err)} `);
       return false;
     }
   }
@@ -147,9 +147,35 @@ export class WorkoutPlanService extends ExercisePlanService {
       return true;
     }
     catch(err){
-      console.info(`Failed in deleting a plan: JSON.stringify(err)) `);
+      console.info(`Failed in deleting a plan: ${JSON.stringify(err)} `);
       return false;
     }
   };
+
+  public async uploadFeelings(record: WorkoutRecord) {
+    try{
+      await this.agcDataBase?.upsert(record);
+      console.info(`Succeeded in uploading a record.`);
+      return true;
+    }
+    catch(err){
+      console.info(`Failed in uploading a record: ${JSON.stringify(err)} `);
+      return false;
+    }
+  }
+
+  public async getFeelingsByPlan(userID: string, planID: string) {
+    let condition = new cloudDatabase.DatabaseQuery(WorkoutRecord);
+    condition.equalTo('UserID',userID).and().equalTo('PlanID',planID);
+    const planArray: WorkoutRecord[]= await this.agcDataBase.query(condition);
+    return planArray;
+  }
+
+  public async getRecords(userID: string, planID: string) {
+    let condition = new cloudDatabase.DatabaseQuery(PlanTask);
+    condition.equalTo('UserID',userID).and().equalTo('PlanID',planID).and().equalTo('TaskType','workout');
+    const planArray: PlanTask[]= await this.agcDataBase.query(condition);
+    return planArray;
+  }
 
 }

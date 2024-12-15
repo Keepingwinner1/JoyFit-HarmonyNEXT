@@ -15,8 +15,6 @@ class RunningRecord extends cloudDatabase.DatabaseObject {
   public Miles: number | undefined;  // Double类型
   public TotalTime: number | undefined;  // Double类型
   public Location: string | undefined;  // String类型
-  public Trajectory: string | undefined;  // String类型
-  public State: string | undefined;
 }
 
 export { RunningRecord };

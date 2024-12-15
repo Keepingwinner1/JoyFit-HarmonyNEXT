@@ -14,7 +14,6 @@ class RunningPlan extends cloudDatabase.DatabaseObject {
   public EndDate: Date | undefined;  // Integer类型
   public DayOfWeek: string | undefined;  // String类型
   public StartDate: Date | undefined;  // Date类型
-  public ExecutionProgress: number | undefined;  // Double类型
   public GoalOfTotalTime: number | undefined;  // Integer类型
   public GoalOfTotalMiles: number | undefined;  // Integer类型
   public GoalOfSpeed: number | undefined;  // Integer类型
