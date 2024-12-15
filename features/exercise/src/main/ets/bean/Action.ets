@@ -6,7 +6,7 @@ class Action extends cloudDatabase.DatabaseObject {
     return 'Action';
   }
 
-  public ActionID: number | undefined;  // Integer类型
+  public ActionID: string | undefined;  // Integer类型
   public ActionName: string | undefined;  // String类型
   public ActonType: string | undefined;  // String类型
   public IntroductionVideo: string | undefined;  // String类型
@@ -15,6 +15,8 @@ class Action extends cloudDatabase.DatabaseObject {
   public TimeOfOne: number | undefined;  // Integer类型
   public MainTrainingPart: string | undefined;  // String类型
   public IsUserDefined: boolean | undefined;  // Boolean类型
+  public Carlories: number|undefined;
+
 }
 
 export { Action };

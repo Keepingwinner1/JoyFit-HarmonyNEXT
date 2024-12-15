@@ -1,10 +1,11 @@
 import{exercisePlan} from './exercisePlan'
-import{action} from'./action'
+import{Action} from'../bean/Action'
 import {UUIDGenerator} from 'utils'
 
 // PlanBuilder 基类
 export abstract class PlanBuilder {
   public PlanID: string = UUIDGenerator.getID();   //创建对象时自动设置 PlanID
+  public UserID: string|undefined;
   public PlanName: string | undefined;
   public CoverPicture: string | undefined;
   public PlanState: string | undefined;
@@ -12,10 +13,15 @@ export abstract class PlanBuilder {
   public StartDate: Date | undefined;
   public EndDate: Date | undefined;
   public ExecutionProgress: number | undefined;
-  public SelectedActions :action[] = [];
+  public SelectedActions :Action[] = [];
 
   setPlanID(PlanID:string):PlanBuilder{
     this.PlanID =PlanID;
+    return this;
+  }
+
+  setUserID(userID:string):PlanBuilder{
+    this.UserID =userID;
     return this;
   }
 
@@ -64,7 +70,7 @@ export abstract class PlanBuilder {
   }
 
   //添加动作
-  addAction(selectedAction: action) : PlanBuilder{
+  addAction(selectedAction: Action) : PlanBuilder{
     this.SelectedActions.push(selectedAction);
     return this;
   }

@@ -4,11 +4,13 @@ import { PlanAction } from "../bean/PlanAction";
 export class actionInfo{
   public ActionName: string | undefined;  // String类型
   public ActonType: string | undefined;  // String类型
+  public ActionID: string | undefined;  // Integer类型
   public Sets: number | undefined;  // Integer类型
   public SingleSetNum: number | undefined;  // Integer类型
 
-  constructor(ActionName: string | undefined, ActonType: string | undefined, Sets: number | undefined, SingleSetNum: number | undefined) {
+  constructor(ActionName: string | undefined, ActionID: string | undefined,ActonType: string | undefined, Sets: number | undefined, SingleSetNum: number | undefined) {
     this.ActionName = ActionName;
+    this.ActionID =ActionID;
     this.ActonType = ActonType;
     this.Sets = Sets;
     this.SingleSetNum = SingleSetNum;
@@ -24,6 +26,7 @@ export class action {
   public TimeOfOne: number | undefined;  // Integer类型
   public MainTrainingPart: string | undefined;  // String类型
   public IsUserDefined: boolean | undefined;  // Boolean类型
+  public Calories: number| undefined;
 
   constructor(
     basicInfo?: actionInfo,
@@ -32,7 +35,8 @@ export class action {
     Description?: string,
     TimeOfOne?: number,
     MainTrainingPart?: string,
-    IsUserDefined?: boolean
+    IsUserDefined?: boolean,
+    Calories?:number
   ) {
     this.basicInfo = basicInfo;
     this.IntroductionVideo = IntroductionVideo;
@@ -41,11 +45,12 @@ export class action {
     this.TimeOfOne = TimeOfOne;
     this.MainTrainingPart = MainTrainingPart;
     this.IsUserDefined = IsUserDefined;
+    this.Calories =Calories;
   }
 
   public static createFromAction(input1:Action,input2:PlanAction): action{
-    let basicInfo = new actionInfo(input1.ActionName,input1.ActonType,input2.Sets,input2.SingleSetNum);
-    return new action(basicInfo,input1.IntroductionVideo,input1.IntroductionVoice,input1.Description,input1.TimeOfOne,input1.MainTrainingPart,input1.IsUserDefined)
+    let basicInfo = new actionInfo(input1.ActionName,input1.ActionID,input1.ActonType,input2.Sets,input2.SingleSetNum);
+    return new action(basicInfo,input1.IntroductionVideo,input1.IntroductionVoice,input1.Description,input1.TimeOfOne,input1.MainTrainingPart,input1.IsUserDefined,input1.Carlories);
   }
 
 }

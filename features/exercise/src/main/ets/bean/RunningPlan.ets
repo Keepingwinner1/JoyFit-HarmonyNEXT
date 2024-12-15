@@ -7,6 +7,7 @@ class RunningPlan extends cloudDatabase.DatabaseObject {
   }
 
   public PlanID: string | undefined;  // Integer类型
+  public UserID: string | undefined;  // String类型
   public PlanName: string | undefined;  // String类型
   public CoverPicture: string | undefined;  // String类型
   public PlanState: string | undefined;  // String类型

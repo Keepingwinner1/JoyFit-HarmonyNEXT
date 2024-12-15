@@ -2,8 +2,9 @@ import {ExercisePlanService} from '../service/ExercisePlanService'
 import {WorkoutPlan} from'../bean/WorkoutPlan'
 import { cloudDatabase } from '@kit.CloudFoundationKit';
 import { workoutPlan } from'../model/workoutPlan'
-import { UserPlan } from '../bean/UserPlan';
-import { exercisePlan } from '../model/exercisePlan';
+import { PlanAction } from '../bean/PlanAction';
+import { action } from '../model/action';
+import { PlanTask } from '../bean/PlanTask';
 
 export class WorkoutPlanService extends ExercisePlanService {
 
@@ -15,14 +16,15 @@ export class WorkoutPlanService extends ExercisePlanService {
 
   public static getInstance(): WorkoutPlanService{
     if (!WorkoutPlanService.instance) {
-      WorkoutPlanService.instance = new  WorkoutPlanService();
+      WorkoutPlanService.instance = new WorkoutPlanService();
     }
     return  WorkoutPlanService.instance;
   }
 
-  private ToBean(plan:workoutPlan){
+  private ToBean(plan:workoutPlan,id:string){
     let planContent =new WorkoutPlan();
     planContent.PlanID = plan.PlanID;
+    planContent.UserID =id;
     planContent.PlanName =plan.PlanName;
     planContent.CoverPicture =plan.CoverPicture;
     planContent.PlanState =plan.PlanState;
@@ -35,14 +37,34 @@ export class WorkoutPlanService extends ExercisePlanService {
     return planContent;
   }
 
+  private planActionToBean(plan:workoutPlan,_action:action){
+    let planAction = new PlanAction();
+    planAction.PlanID = plan.PlanID;
+    planAction.ActionID = _action.basicInfo?.ActionID;
+    planAction.Sets =_action.basicInfo?.Sets;
+    planAction.SingleSetNum =_action.basicInfo?.SingleSetNum;
+    return planAction;
+  }
+
   public async uploadPlan(plan:workoutPlan,userID:string): Promise<boolean> {
-     //向UserPlan、WorkoutPlan表中插入记录
-      let userPlan: UserPlan =new UserPlan();
-      userPlan.PlanID =plan.PlanID;
-      userPlan.UserID =userID;
-      const planContent =this.ToBean(plan);
+      const planContent =this.ToBean(plan,userID);
+      let targetDates =this.getExecutionDates(plan.StartDate,plan.EndDate,plan.DayOfWeek);
+      let taskArr: PlanTask[] =[];
+      for(let date of targetDates){
+        if(plan.PlanID != undefined)
+          taskArr.push(this.taskToBean(plan.PlanID,userID,date))
+      }
+      let planActionArr: PlanAction[] =[];
+      if(plan.includedActions != undefined)
+        for(let _action of plan.includedActions){
+          planActionArr.push(this.planActionToBean(plan,_action));
+      }
       try {
-        await this.agcDataBase?.upsert(userPlan);
+        //向PlanAction表插入记录
+        await this.agcDataBase?.upsert(planActionArr)
+        //向WorkoutPlan表中插入记录
+        await this.agcDataBase?.upsert(planContent);
+        //向PlanTask插入待办任务
         await this.agcDataBase?.upsert(planContent);
         return true;
       } catch (err) {
@@ -51,7 +73,7 @@ export class WorkoutPlanService extends ExercisePlanService {
   }
 
   public async updatePlan(plan: workoutPlan, userID: string): Promise<boolean> {
-    const planContent =this.ToBean(plan);
+    const planContent =this.ToBean(plan,userID);
     try {
       await this.agcDataBase?.upsert(planContent);
       return true;
@@ -60,21 +82,74 @@ export class WorkoutPlanService extends ExercisePlanService {
     }
   }
 
-  public async getTodayTasks(): Promise<WorkoutPlan[]> {
+  public async getTodayTasks(userID:string): Promise<WorkoutPlan[]> {
     let currentTime = new Date();
-    let dayOfWeek = currentTime.getDay();
-    let condition = new cloudDatabase.DatabaseQuery(WorkoutPlan);
-    condition.greaterThanOrEqualTo('StartDate', currentTime).and().lessThanOrEqualTo('EndDate',currentTime);
-    const planArray: WorkoutPlan[]= await this.agcDataBase.query(condition);
+    let condition = new cloudDatabase.DatabaseQuery(PlanTask);
+    condition.equalTo('UserID',userID).and().equalTo('ExecutedDate',currentTime).and().equalTo('TaskType','workout'); //这个判断条件可能要改
+    const TaskArray: PlanTask[]= await this.agcDataBase.query(condition);
     let result: WorkoutPlan[]=[];
-    //对每一个对象获取星期这个属性，进行判断
-    for(let plan of planArray){
-      if(this.parseAndCheck(plan.DayOfWeek,dayOfWeek)){
-        result.push(plan);
-      }
+    for(let task of TaskArray) {
+      let condition = new cloudDatabase.DatabaseQuery(WorkoutPlan);
+      condition.equalTo('PlanID',task.PlanID);
+      let PlanArray: WorkoutPlan[]= await this.agcDataBase.query(condition);
+      let res = PlanArray.pop();
+      if(res != undefined)
+        result.push(res);
     }
     return result;
   }
 
+  public async getNotStartedPlan(userID:string) {
+    let condition = new cloudDatabase.DatabaseQuery(WorkoutPlan);
+    condition.equalTo('UserID',userID).and().equalTo('PlanState','NotStarted');
+    const planArray: WorkoutPlan[]= await this.agcDataBase.query(condition);
+    return planArray;
+  }
+
+  public async getCompletedPlan(userID:string) {
+    let condition = new cloudDatabase.DatabaseQuery(WorkoutPlan);
+    condition.equalTo('UserID',userID).and().equalTo('PlanState','Completed');
+    const planArray: WorkoutPlan[]= await this.agcDataBase.query(condition);
+    return planArray;
+  }
+
+  public async getInProgressPlan(userID:string) {
+    let condition = new cloudDatabase.DatabaseQuery(WorkoutPlan);
+    condition.equalTo('UserID',userID).and().equalTo('PlanState','InProgress');
+    const planArray: WorkoutPlan[]= await this.agcDataBase.query(condition);
+    return planArray;
+  }
+
+  public async getAbandonedPlan(userID:string) {
+    let condition = new cloudDatabase.DatabaseQuery(WorkoutPlan);
+    condition.equalTo('UserID',userID).and().equalTo('PlanState','Abandoned');
+    const planArray: WorkoutPlan[]= await this.agcDataBase.query(condition);
+    return planArray;
+  }
+
+  public async deleteNotStartedPlan(plan:WorkoutPlan){
+    try{
+      let deleteNum = await this.agcDataBase.delete(plan);
+      console.info(`Succeeded in deleting plan , result: ${deleteNum}`);
+      return true;
+    }
+    catch(err){
+      console.info(`Failed in deleting a plan: JSON.stringify(err)) `);
+      return false;
+    }
+  }
+
+  public async abandonInProgressPlan(targetPlan:WorkoutPlan){
+    try{
+      targetPlan.PlanState = "Abandoned";
+      await this.agcDataBase?.upsert(targetPlan);
+      console.info(`Succeeded in abandoning a plan.`);
+      return true;
+    }
+    catch(err){
+      console.info(`Failed in deleting a plan: JSON.stringify(err)) `);
+      return false;
+    }
+  };
 
 }

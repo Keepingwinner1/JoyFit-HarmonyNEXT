@@ -3,8 +3,12 @@ import {Action} from '../bean/Action'
 import {RunningPlan} from'../bean/RunningPlan'
 import {WorkoutPlan} from'../bean/WorkoutPlan'
 import {PlanAction} from '../bean/PlanAction'
-import {action,actionInfo} from '../model/action'
+import {action} from '../model/action'
 import { exercisePlan } from '../model/exercisePlan';
+import { runningPlanBuilder } from '../model/runningPlanBuilder';
+import { workoutPlanBuilder } from '../model/workoutPlanBuilder';
+import { PlanTask } from '../bean/PlanTask';
+import { UUIDGenerator } from 'utils';
 
 export abstract class ExercisePlanService {
 
@@ -12,25 +16,15 @@ export abstract class ExercisePlanService {
   protected agcDataBase: cloudDatabase.DatabaseZone = cloudDatabase.zone('joyfit');
 
   public abstract uploadPlan(plan:exercisePlan,userID:string);
-  public abstract getTodayTasks();
-  public abstract updatePlan(plan:exercisePlan,userID:string)
-  //public abstract
+  public abstract getTodayTasks(userID:string);
+  public abstract updatePlan(plan:exercisePlan,userID:string);
+  public abstract getCompletedPlan(userID:string);
+  public abstract getNotStartedPlan(userID:string);
+  public abstract getInProgressPlan(userID:string);
+  public abstract getAbandonedPlan(userID:string);
+  public abstract deleteNotStartedPlan(plan:RunningPlan|WorkoutPlan);
+  public abstract abandonInProgressPlan(plan:RunningPlan|WorkoutPlan);
 
-  // 解析以#分隔的数字字符串，并判断某个数字是否在这个数组中
-  protected parseAndCheck(input: string|undefined, numToCheck: number): boolean {
-  // Step 1: 使用split将字符串按#分割，得到一个字符串数组
-    if(typeof input == 'string'){
-      let strArray = input.split('#');
-      // Step 2: 使用map将字符串数组转换为数字数组
-      let numArray = strArray.map(str => parseInt(str, 10));  // 或使用 +str 进行转换
-      // Step 3: 使用includes判断数字是否在数组中
-      return numArray.includes(numToCheck);
-    }
-    else{
-      console.log("传入参数非string");
-      return false;
-    }
-  }
 
   public async getActionsByPlanID(planID: string){
     let condition = new cloudDatabase.DatabaseQuery(PlanAction);
@@ -48,4 +42,76 @@ export abstract class ExercisePlanService {
     }
     return result;
   }
+
+  public createPlanBuilder(type:string):runningPlanBuilder|workoutPlanBuilder|null{
+    switch (type){
+      case 'running':
+        return new runningPlanBuilder();
+      case 'workout':
+        return new workoutPlanBuilder();
+      default:
+        return null;
+    }
+  }
+
+  public async finishTask(task:PlanTask): Promise<boolean> {
+    try{
+      task.State = "Completed";
+      await this.agcDataBase?.upsert(task);
+      console.info(`Succeeded in completing a task.`);
+      return true;
+    }
+    catch(err){
+      console.info(`Failed in completing a plan: ${JSON.stringify(err)} `);
+      return false;
+    }
+  }
+
+  public async abandonTask(task:PlanTask): Promise<boolean> {
+    try{
+      task.State = "Abandoned";
+      await this.agcDataBase?.upsert(task);
+      console.info(`Succeeded in abandoning a task.`);
+      return true;
+    }
+    catch(err){
+      console.info(`Failed in abandoning a plan: ${JSON.stringify(err)} `);
+      return false;
+    }
+  }
+
+  protected getExecutionDates(startDate?: Date, endDate?: Date, daysOfWeekStr?: string): Date[] {
+    const executionDates: Date[] = [];
+    if(startDate!= undefined && endDate!=undefined && daysOfWeekStr!=undefined){
+      const daysOfWeek = daysOfWeekStr.split('#').map(day => parseInt(day, 10));
+      // 确保 daysOfWeek 是升序的，便于后续处理
+      daysOfWeek.sort((a, b) => a - b);
+      // 计算开始日期是星期几
+      let currentDate = new Date(startDate);
+      //const currentDayOfWeek = currentDate.getDay(); // Sunday - 0, Monday - 1, ..., Saturday - 6
+      // 从开始日期开始，遍历到结束日期
+      while (currentDate <= endDate) {
+        const currentDay = currentDate.getDay(); // 当前日期的星期几
+        // 如果当前星期几在用户指定的 daysOfWeek 中，就把当前日期添加到执行日期列表
+        if (daysOfWeek.includes(currentDay)) {
+          executionDates.push(new Date(currentDate));
+        }
+        // 增加一天，继续检查下一个日期
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    }
+    return executionDates;
+  }
+
+  protected taskToBean(planID:string,userID:string,date:Date){
+    let task = new PlanTask();
+    task.TaskID = UUIDGenerator.getID();
+    task.UserID =userID;
+    task.PlanID =planID;
+    task.ExecutedDate =date;
+    task.State = 'Pending';
+    task.TaskType ='running';
+    return task;
+  }
+
 }

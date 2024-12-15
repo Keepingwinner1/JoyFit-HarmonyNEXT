@@ -2,8 +2,8 @@ import {ExercisePlanService} from '../service/ExercisePlanService'
 import {RunningPlan} from'../bean/RunningPlan'
 import { cloudDatabase } from '@kit.CloudFoundationKit';
 import {runningPlan} from '../model/runningPlan'
-import { UserPlan } from '../bean/UserPlan';
-import { exercisePlan } from '../model/exercisePlan';
+import { PlanTask } from '../bean/PlanTask';
+import {UUIDGenerator} from 'utils'
 
 export class RunningPlanService extends ExercisePlanService{
 
@@ -20,25 +20,27 @@ export class RunningPlanService extends ExercisePlanService{
     return  RunningPlanService.instance;
   }
 
-  public async getTodayTasks(): Promise<RunningPlan[]>{
+  public async getTodayTasks(userID:string): Promise<RunningPlan[]>{
     let currentTime = new Date();
-    let dayOfWeek = currentTime.getDay();
-    let condition = new cloudDatabase.DatabaseQuery(RunningPlan);
-    condition.greaterThanOrEqualTo('StartDate', currentTime).and().lessThanOrEqualTo('EndDate',currentTime);
-    const planArray: RunningPlan[]= await this.agcDataBase.query(condition);
+    let condition = new cloudDatabase.DatabaseQuery(PlanTask);
+    condition.equalTo('UserID',userID).and().equalTo('ExecutedDate',currentTime).and().equalTo('TaskType','running').and().equalTo('State','Pending'); //这个判断条件可能要改
+    const TaskArray: PlanTask[]= await this.agcDataBase.query(condition);
     let result: RunningPlan[]=[];
-    //对每一个对象获取星期这个属性，进行判断
-    for(let plan of planArray){
-      if(this.parseAndCheck(plan.DayOfWeek,dayOfWeek)){
-        result.push(plan);
-      }
+    for(let task of TaskArray) {
+      let condition = new cloudDatabase.DatabaseQuery(RunningPlan);
+      condition.equalTo('PlanID',task.PlanID);
+      let PlanArray: RunningPlan[]= await this.agcDataBase.query(condition);
+      let res = PlanArray.pop();
+      if(res != undefined)
+        result.push(res);
     }
     return result;
   }
 
-  private ToBean(plan: runningPlan){
+  private runningPlanToBean(plan: runningPlan,id:string){
     let planContent =new RunningPlan();
     planContent.PlanID = plan.PlanID;
+    planContent.UserID = id;
     planContent.PlanName =plan.PlanName;
     planContent.CoverPicture =plan.CoverPicture;
     planContent.PlanState =plan.PlanState;
@@ -49,17 +51,21 @@ export class RunningPlanService extends ExercisePlanService{
     planContent.GoalOfTotalTime= plan.GoalOfTotalTime;
     planContent.GoalOfTotalMiles =plan.GoalOfTotalMiles;
     planContent.GoalOfSpeed = plan.GoalOfSpeed;
-    return planContent
+    return planContent;
   }
 
-  public async uploadPlan(plan: runningPlan,userID:string): Promise<boolean> {
-    //向UserPlan、RunningPlan表中插入记录
-    let userPlan: UserPlan =new UserPlan();
-    userPlan.PlanID =plan.PlanID;
-    userPlan.UserID =userID;
-    const planContent =this.ToBean(plan);
+  public async uploadPlan(plan:runningPlan,userID:string): Promise<boolean> {
+    const planContent =this.runningPlanToBean(plan,userID);
+    let targetDates =this.getExecutionDates(plan.StartDate,plan.EndDate,plan.DayOfWeek);
+    let taskArr: PlanTask[] =[];
+    for(let date of targetDates){
+      if(plan.PlanID != undefined)
+        taskArr.push(this.taskToBean(plan.PlanID,userID,date))
+    }
     try {
-      await this.agcDataBase?.upsert(userPlan);
+      //向RunningPlan表中插入记录
+      await this.agcDataBase?.upsert(planContent);
+      //插入待办任务
       await this.agcDataBase?.upsert(planContent);
       return true;
     } catch (err) {
@@ -68,12 +74,64 @@ export class RunningPlanService extends ExercisePlanService{
   }
 
   public async updatePlan(plan: runningPlan, userID: string): Promise<boolean> {
-    const planContent =this.ToBean(plan);
+    const planContent =this.runningPlanToBean(plan,userID);
     try {
-      const planContent =this.ToBean(plan);
       await this.agcDataBase?.upsert(planContent);
       return true;
     } catch (err) {
+      return false;
+    }
+  }
+
+  public async getNotStartedPlan(userID:string) {
+    let condition = new cloudDatabase.DatabaseQuery(RunningPlan);
+    condition.equalTo('UserID',userID).and().equalTo('PlanState','NotStarted');
+    const planArray: RunningPlan[]= await this.agcDataBase.query(condition);
+    return planArray;
+  }
+
+  public async getCompletedPlan(userID:string) {
+    let condition = new cloudDatabase.DatabaseQuery(RunningPlan);
+    condition.equalTo('UserID',userID).and().equalTo('PlanState','Completed');
+    const planArray: RunningPlan[]= await this.agcDataBase.query(condition);
+    return planArray;
+  }
+
+  public async getInProgressPlan(userID:string) {
+    let condition = new cloudDatabase.DatabaseQuery(RunningPlan);
+    condition.equalTo('UserID',userID).and().equalTo('PlanState','InProgress');
+    const planArray: RunningPlan[]= await this.agcDataBase.query(condition);
+    return planArray;
+  }
+
+  public async getAbandonedPlan(userID:string) {
+    let condition = new cloudDatabase.DatabaseQuery(RunningPlan);
+    condition.equalTo('UserID',userID).and().equalTo('PlanState','Abandoned');
+    const planArray: RunningPlan[]= await this.agcDataBase.query(condition);
+    return planArray;
+  }
+
+  public async deleteNotStartedPlan(plan:RunningPlan){
+    try{
+      let deleteNum = await this.agcDataBase.delete(plan);
+      console.info(`Succeeded in deleting plan , result: ${deleteNum}`);
+      return true;
+    }
+    catch(err){
+      console.info(`Failed in deleting a plan: JSON.stringify(err)) `);
+      return false;
+    }
+  }
+
+  public async abandonInProgressPlan(targetPlan:RunningPlan){
+    try{
+      targetPlan.PlanState = "Abandoned";
+      await this.agcDataBase?.upsert(targetPlan);
+      console.info(`Succeeded in abandoning a plan.`);
+      return true;
+    }
+    catch(err){
+      console.info(`Failed in abandoning a plan: ${JSON.stringify(err)} `);
       return false;
     }
   }

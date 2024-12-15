@@ -14,7 +14,6 @@ export abstract class exercisePlan {
   public EndDate: Date | undefined;  // Date类型
   public ExecutionProgress: number | undefined; // Double类型
   public includedActions : action[] | undefined;
-
 }
 
 
