@@ -5,7 +5,6 @@ class RunningPlan extends cloudDatabase.DatabaseObject {
   public naturalbase_ClassName(): string {
     return 'RunningPlan';
   }
-
   public PlanID: string | undefined;  // Integer类型
   public UserID: string | undefined;  // String类型
   public PlanName: string | undefined;  // String类型

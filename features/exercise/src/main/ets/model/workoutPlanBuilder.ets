@@ -2,8 +2,8 @@ import { workoutPlan } from './workoutPlan';
 import { PlanBuilder} from './planBuilder'
 
 export class workoutPlanBuilder extends PlanBuilder {
-  public RestTimeBetweenSets: number | undefined;
-  public RestTimeBetweenExercises: number | undefined;
+  public RestTimeBetweenSets: number = 5;
+  public RestTimeBetweenExercises: number = 10;
 
   // 设置 RestTimeBetweenSets
   setRestTimeBetweenSets(RestTimeBetweenSets: number): workoutPlanBuilder {

@@ -34,6 +34,16 @@ export class WorkoutPlanService extends ExercisePlanService {
     planContent.StartDate =plan.StartDate;
     planContent.RestTimeBetweenSets = plan.RestTimeBetweenSets;
     planContent.RestTimeBetweenExercises =plan.RestTimeBetweenExercises;
+    //遍历所有动作计算总耗时
+    let time = 0;
+    for(let action of plan.includedActions){
+      let time1 = action.TimeOfOne * action.basicInfo.SingleSetNum;
+      let time2 = (action.basicInfo.Sets-1)* plan.RestTimeBetweenSets;
+      time += time1;
+      time += time2;
+      time+= plan.RestTimeBetweenExercises;
+    }
+    planContent.TotalTime = time;
     return planContent;
   }
 

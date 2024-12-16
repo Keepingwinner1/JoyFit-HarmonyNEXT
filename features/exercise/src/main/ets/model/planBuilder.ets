@@ -5,13 +5,13 @@ import {UUIDGenerator} from 'utils'
 // PlanBuilder 基类
 export abstract class PlanBuilder {
   public PlanID: string = UUIDGenerator.getID();   //创建对象时自动设置 PlanID
-  public UserID: string|undefined;
-  public PlanName: string | undefined;
-  public CoverPicture: string | undefined;
-  public PlanState: string | undefined;
-  public DayOfWeek: string | undefined;
-  public StartDate: Date | undefined;
-  public EndDate: Date | undefined;
+  public UserID: string = '' ;
+  public PlanName: string= '';
+  public CoverPicture: string ='';
+  public PlanState: string = 'NotStarted';
+  public DayOfWeek: string = '1#3#5';
+  public StartDate: Date = new Date();
+  public EndDate: Date = new Date();
   public SelectedActions :Action[] = [];
 
   setPlanID(PlanID:string):PlanBuilder{
