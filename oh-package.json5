@@ -8,6 +8,7 @@
   "dynamicDependencies": {},
   "dependencies": {
     "@hzw/zrouter": "^1.1.0",
-    "@pura/harmony-utils": "^1.2.3"
+    "@pura/harmony-utils": "^1.2.3",
+    "@mcui/mccharts": "^2.8.3"
   }
 }
