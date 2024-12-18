@@ -1,5 +1,6 @@
 import { bar } from '@mcui/mccharts/src/main/ets/mcCore/core'
 import {mcLineChart} from './mccharts'
+import { router, Router } from '@kit.ArkUI'
 
 @ComponentV2
 export default struct SportsDataPage {
@@ -216,9 +217,13 @@ struct todayTask {
       List() {
         ForEach(Array.from({length: 4}), () => {
           ListItem () {
-            listItem({
+            TaskItem({
               coverURL: this.isWorkOut ? 'app.media.test_plan_cover' : 'app.media.test_poster1',
-              planName: this.isWorkOut ? '腹肌撕裂者' : '举重训练'
+              planName: this.isWorkOut ? '腹肌撕裂者' : '半马强化',
+              taskType: this.isWorkOut ? '健身' : '跑步',
+              workoutTime: this.isWorkOut ? 45 : 0, //单位min
+              runningDistance: this.isWorkOut ? 0 : 3, //单位km
+              runningTime: this.isWorkOut ? 0 : 15,
             }).margin({top: 10})
           }
         })
@@ -232,9 +237,14 @@ struct todayTask {
 }
 
 @ComponentV2
-struct listItem {
-  @Param coverURL: string = '';
+struct TaskItem {
+  @Param coverURL: string = ''
   @Param planName: string = ''
+  @Param taskType: string = ''
+  @Param workoutTime: number = 0
+  @Param runningDistance: number = 0
+  @Param runningTime: number = 0
+
   build() {
     Row() {
       Image($r(this.coverURL))
@@ -244,10 +254,17 @@ struct listItem {
         Text(this.planName)
           .fontSize(18)
           .fontWeight(FontWeight.Bold)
-        Text('45 分钟')
-          .fontSize(12)
-          .fontColor('#ff6b6b6b')
-          .margin({right: 5})
+        if(this.taskType == '健身')
+          Text(`${this.workoutTime.toString()} min`)
+            .fontSize(12)
+            .fontColor('#ff6b6b6b')
+            .margin({right: 5})
+        else
+          Text(`目标时间:${this.runningTime.toString()}min 目标距离:${this.runningDistance.toString()}km`)
+            .fontSize(12)
+            .fontColor('#ff6b6b6b')
+            .margin({right: 5})
+
       }
       .height('100%')
       .alignItems(HorizontalAlign.Start)
@@ -264,5 +281,11 @@ struct listItem {
     .borderRadius(20)
     .backgroundColor(Color.White)
     .padding(15)
+    .onClick(() => {
+      router.pushUrl({
+        url: this.taskType == '健身' ? "pages/VideoPlayPage" : "pages/RunPage"
+      })
+    })
   }
 }
+

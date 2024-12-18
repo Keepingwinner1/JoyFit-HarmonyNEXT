@@ -1,5 +1,10 @@
 {
   "src": [
-    "pages/MainPage"
+    "pages/MainPage",
+    "pages/VideoPlayPage",
+    "pages/RunPage",
+    "pages/CreatePlanPage",
+    "pages/ActionLibraryPage",
+    "pages/AddActionPage"
   ]
 }

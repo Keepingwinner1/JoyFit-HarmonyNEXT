@@ -1,4 +1,6 @@
 import { ComposeListItem } from '@ohos.arkui.advanced.ComposeListItem'
+import { router } from '@kit.ArkUI'
+
 enum PlanStatus { Completed, Doing, Fail, Todo}
 
 
@@ -65,6 +67,11 @@ export default struct PlanPage {
                 .height(30)
                 .fillColor('#ff5e74f5')
             }
+            .onClick(() => {
+              router.pushUrl({
+                url: "pages/CreatePlanPage"
+              })
+            })
 
           }
           .width('100%')
