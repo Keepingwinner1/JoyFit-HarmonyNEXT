@@ -22,11 +22,15 @@ export default struct MinePage {
     Stack() {
       //主体层
       Column() {
+        Row() {
+          Image($r('app.media.ic_gearshape'))
+            .height(30)
+            .margin({right: 10})
+        }.width('100%').justifyContent(FlexAlign.End)
         Image($r('app.media.test_plan_cover'))
           .width(100)
           .height(100)
           .borderRadius(50)
-          .margin({top: 30})
 
         Text(this.nickname)
           .margin({top: 30})
@@ -64,6 +68,42 @@ export default struct MinePage {
         .padding(10)
         .borderRadius(10)
         .margin({top: 30})
+
+        Row() {
+          Column() {
+            Text('BMI指数评分')
+              .fontSize(16)
+              .margin({top: 10})
+            Gauge({ value: 86, min: 1, max: 100 }) {
+              Column() {
+                Text('86')
+                  .maxFontSize("80sp")
+                  .minFontSize("60.0vp")
+                  .fontWeight(FontWeight.Medium)
+                  .fontColor("#ff182431")
+                  .width('40%')
+                  .height('30%')
+                  .textAlign(TextAlign.Center)
+                  .margin({ top: '22.2%' })
+                  .textOverflow({ overflow: TextOverflow.Ellipsis })
+                  .maxLines(1)
+              }.width('100%').height('100%')
+            }
+            .startAngle(225)
+            .endAngle(135)
+            .colors(new LinearGradient([{ color: "#e84026", offset: 0 },
+              { color: "#f7ce00", offset: 0.6 },
+              { color: "#64bb5c", offset: 1 }]))
+            .width('100%')
+            .height('100%')
+            .strokeWidth(18)
+            .trackShadow({ radius: 7, offsetX: 7, offsetY: 7 })
+            .padding(18)
+          }.width('50%')
+          .backgroundColor(Color.White)
+          .borderRadius(10)
+        }.width('100%').height(180)
+        .margin({top: 20})
       }
       .width('100%')
       .height('100%')

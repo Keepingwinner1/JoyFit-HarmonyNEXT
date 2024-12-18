@@ -5,6 +5,7 @@
     "pages/RunPage",
     "pages/CreatePlanPage",
     "pages/ActionLibraryPage",
-    "pages/AddActionPage"
+    "pages/AddActionPage",
+    "pages/AddRecordPage"
   ]
 }

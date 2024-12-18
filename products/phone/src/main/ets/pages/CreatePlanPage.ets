@@ -15,14 +15,12 @@ struct CreatePlanPage {
   build() {
     Column() {
       Row() {
-        Image($r('app.media.ic_arrow_left'))
-          .width(25)
+        Image($r('app.media.ic_chevron_left'))
+          .height(30)
           .onClick(() => {
             router.back()
           })
         Text('计划创建')
-          .fontSize(20)
-          .fontWeight(FontWeight.Regular)
         Text('完成')
           .backgroundColor(Color.Green)
           .fontColor(Color.White)
@@ -34,7 +32,28 @@ struct CreatePlanPage {
       }
       .width('100%')
       .justifyContent(FlexAlign.SpaceBetween)
-      .padding(10)
+      .padding({left: 30, right: 30, bottom: 15})
+      // Row() {
+      //   Image($r('app.media.ic_arrow_left'))
+      //     .width(25)
+      //     .onClick(() => {
+      //       router.back()
+      //     })
+      //   Text('计划创建')
+      //     .fontSize(20)
+      //     .fontWeight(FontWeight.Regular)
+      //   Text('完成')
+      //     .backgroundColor(Color.Green)
+      //     .fontColor(Color.White)
+      //     .padding({top: 5, bottom: 5, left: 10, right: 10})
+      //     .borderRadius(10)
+      //     .onClick(() => {
+      //       router.back()
+      //     })
+      // }
+      // .width('100%')
+      // .justifyContent(FlexAlign.SpaceBetween)
+      // .padding(10)
 
       Column() {
 
@@ -157,7 +176,7 @@ struct CreatePlanPage {
       .height('100%')
       .width('100%')
       .backgroundColor("#ffeeeeee")
-      .padding(20)
+      .padding({top: 10, left: 20, right: 20, bottom: 20})
       .alignItems(HorizontalAlign.Center)
     }
   }
