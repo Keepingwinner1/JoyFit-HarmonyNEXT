@@ -1,10 +1,30 @@
 import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
+import { ZRouter } from '@hzw/zrouter';
+import BuildProfile from 'uicomponents/BuildProfile';
+import { AppUtil } from '@pura/harmony-utils';
+import { buffer } from '@kit.ArkTS';
+import { cloudCommon } from '@kit.CloudFoundationKit';
+import auth from '@hw-agconnect/auth';
+
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
+
+    //初始化认证服务
+    let file = this.context.resourceManager.getRawFileContentSync('agconnect-services.json');
+    let json: string = buffer.from(file.buffer).toString();
+    auth.init(this.context, json);
+
+    // 如果项目中存在hsp模块则传入true
+    ZRouter.initialize((config) => {
+      config.isLoggingEnabled = BuildProfile.DEBUG
+      config.isHSPModuleDependent = false
+    })
+
+    AppUtil.init(this.context);
   }
 
   onDestroy(): void {
