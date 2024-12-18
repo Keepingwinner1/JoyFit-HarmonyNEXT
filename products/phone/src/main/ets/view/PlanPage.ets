@@ -39,14 +39,14 @@ export default struct PlanPage {
             .margin({top: 20})
           planItem({
             planName: '腹肌撕裂者',
-            planCover: 'app.media.planCover',
+            planCover: 'app.media.test_plan_cover',
             tag: '#腹肌 #核心',
             time: '45min',
             type: PlanStatus.Doing
           })
           planItem({
             planName: '举重训练',
-            planCover: 'app.media.poster1',
+            planCover: 'app.media.test_poster1',
             tag: '#胸肌 #力量',
             time: '30min',
             type: PlanStatus.Doing
@@ -78,7 +78,7 @@ export default struct PlanPage {
           .justifyContent(FlexAlign.SpaceBetween)
           planItem({
             planName: '举重训练',
-            planCover: 'app.media.poster1',
+            planCover: 'app.media.test_poster1',
             tag: '#胸肌 #力量',
             time: '30min',
             type: PlanStatus.Todo
@@ -92,14 +92,14 @@ export default struct PlanPage {
             .width('100%')
           planItem({
             planName: '举重训练',
-            planCover: 'app.media.poster1',
+            planCover: 'app.media.test_poster1',
             tag: '#胸肌 #力量',
             time: '30min',
             type: PlanStatus.Fail
           })
           planItem({
             planName: '举重训练',
-            planCover: 'app.media.poster1',
+            planCover: 'app.media.test_poster1',
             tag: '#胸肌 #力量',
             time: '30min',
             type: PlanStatus.Completed
