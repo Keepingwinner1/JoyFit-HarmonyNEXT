@@ -1,6 +1,6 @@
 import { Route, ZRouter } from "@hzw/zrouter"
-import { AppUtil, ToastUtil } from "@pura/harmony-utils"
-import { HomeView } from "home"
+// import { AppUtil, ToastUtil } from "@pura/harmony-utils"
+// import { HomeView } from "home"
 import { MineView } from "mine"
 import { TabModel } from "uicomponents"
 import { CommonConst, NavName } from "utils"
@@ -56,10 +56,10 @@ export struct MainPage {
       const timeDifference = currentTime - lastBackPressedTime
       if (timeDifference < 2000) { // 2秒内再次点击
         //退出应用
-        AppUtil.exit()
+        //AppUtil.exit()
       } else {
         // 提示用户
-        ToastUtil.showToast('再按一次退出应用')
+        //ToastUtil.showToast('再按一次退出应用')
         lastBackPressedTime = currentTime
       }
 
@@ -72,7 +72,7 @@ export struct MainPage {
   tabContentBuilder(item: TabModel) {
     if (item.index == 0) {
       // 首页
-      HomeView()
+      //HomeView()
     } else if (item.index == 1) {
       // 问答
       //QuestionView()

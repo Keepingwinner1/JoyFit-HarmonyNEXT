@@ -3,8 +3,8 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import auth from '@hw-agconnect/auth';
 import { window } from '@kit.ArkUI';
 import { ZRouter } from '@hzw/zrouter';
-import BuildProfile from 'home/BuildProfile';
-import { AppUtil } from '@pura/harmony-utils';
+// import BuildProfile from 'home/BuildProfile';
+// import { AppUtil } from '@pura/harmony-utils';
 import { buffer } from '@kit.ArkTS';
 import { cloudCommon } from '@kit.CloudFoundationKit';
 
@@ -19,11 +19,11 @@ export default class EntryAbility extends UIAbility {
 
     // 如果项目中存在hsp模块则传入true
     ZRouter.initialize((config) => {
-      config.isLoggingEnabled = BuildProfile.DEBUG
+     // config.isLoggingEnabled = BuildProfile.DEBUG
       config.isHSPModuleDependent = false
     })
 
-    AppUtil.init(this.context);
+    //AppUtil.init(this.context);
   }
 
   onDestroy(): void {
