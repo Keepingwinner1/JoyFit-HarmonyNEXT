@@ -5,6 +5,11 @@ import { font, router } from '@kit.ArkUI'
 @ComponentV2
 struct VideoPlayPage {
   @Local isPlaying: boolean = true
+  @Local time: number = 0
+
+  private intervalID = setInterval(() => {
+    this.time++
+  }, 1000)
 
   build() {
     Column() {
@@ -40,21 +45,15 @@ struct VideoPlayPage {
             .backgroundColor('#3cffffff')
             .color('#24c789')
 
-          Text('00:09')
+          Text(this.showTime())
             .fontColor(Color.White)
             .fontWeight(FontWeight.Bold)
             .fontSize(28)
             .margin({left: 14})
-
-          Blank()
-
-          Text('0')
-            .fontColor(Color.White)
-            .fontWeight(FontWeight.Bold)
-            .fontSize(28)
         }
         .margin({top: 10})
         .width('100%')
+        .justifyContent(FlexAlign.SpaceBetween)
 
         Row() {
           Row() {
@@ -84,6 +83,7 @@ struct VideoPlayPage {
               .padding(5)
               .onClick(() => {
                 this.isPlaying = !this.isPlaying
+                clearInterval(this.intervalID);
               })
 
             else {
@@ -116,12 +116,13 @@ struct VideoPlayPage {
                 .padding(5)
                 .onClick(() => {
                   this.isPlaying = !this.isPlaying
+                  this.intervalID = setInterval(() => {
+                    this.time++
+                  }, 1000)
                 })
               }
             }
           }
-
-
 
           Row() {
             Image($r('app.media.ic_forward_end_fill'))
@@ -149,6 +150,20 @@ struct VideoPlayPage {
     .backgroundImage($r('app.media.test_video'))
     .backgroundImageSize({height: '100%'})
     .backgroundImagePosition(Alignment.Center)
+  }
+
+  private showTime(): string {
+    let min: number = Math.floor(this.time / 60)
+    let sec: number = (this.time % 60)
+    let ans: string = ''
+    if (min > 9) ans += min.toString()
+    else if (min > 0) ans += `0${min.toString()}`
+    else ans += '00'
+    ans += ':'
+    if (sec > 9) ans += sec.toString()
+    else if (sec > 0) ans += `0${sec.toString()}`
+    else ans += '00'
+    return ans
   }
 
   // @Builder
