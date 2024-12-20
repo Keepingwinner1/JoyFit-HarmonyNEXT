@@ -1,24 +1,51 @@
-import {AthleticAbility} from "../model/AthleticAbility"
+import {athleticAbility} from "../model/athleticAbility"
+import { cloudDatabase } from '@kit.CloudFoundationKit';
+import { AthleticAbility } from '../bean/AthleticAbility';
 
-class AthleticAbilityService{
-  private instance: AthleticAbilityService|null = null;
-  private athleticAbility: AthleticAbility  = AthleticAbility.createFromCloud();
+export class AthleticAbilityService{
+  private static instance: AthleticAbilityService|null = null;
+  private agcDataBase: cloudDatabase.DatabaseZone = cloudDatabase.zone('joyfit');
 
-  // 更新运动能力信息的方法
-  // userID 用来识别特定的用户，可以在实际应用中用于关联数据库中的用户
-  public updateInfo(newAthleticAbilityInfo: AthleticAbility, userID: number): boolean {
-    // 假设我们会根据 userID 查找用户的现有数据，并更新（这里只是简单示范）
-    console.log(`Updating athletic ability info for user ID: ${userID}`);
+  private constructor() {}
 
-    this.athleticAbility.runningDistance
-    // 将新的运动能力信息赋给当前实例
+  static getInstance(): AthleticAbilityService {
+    if (!AthleticAbilityService.instance) {
+      AthleticAbilityService.instance = new AthleticAbilityService();
+    }
+    return AthleticAbilityService.instance;
+  }
 
-    // this.athleticAbility.runningDistance = newAthleticAbilityInfo.runningDistance;
-    // this.pushUpNums = newAthleticAbilityInfo.pushUpNums;
-    // this.squatNums = newAthleticAbilityInfo.squatNums;
-    // this.crunchNums = newAthleticAbilityInfo.crunchNums;
+  // 用户更新运动能力信息
+  async updateInfo(newAthleticAbilityInfo: athleticAbility, uid: string) {
+    if(!uid||!newAthleticAbilityInfo){
+      console.error('Invalid parameters: BodyFat or uid is missing');
+      return false;
+    }
+    try {
+      let UserAthletic=new AthleticAbility();
+      UserAthletic.UserID=uid;
+      UserAthletic.RunningDistance=newAthleticAbilityInfo.runningDistance;
+      UserAthletic.PushUpNums=newAthleticAbilityInfo.pushUpNums;
+      UserAthletic.SquatNums=newAthleticAbilityInfo.squatNums;
+      UserAthletic.CrunchNums=newAthleticAbilityInfo.crunchNums;
+      let currentDate = new Date();
+      UserAthletic.LastUpdated=currentDate;
 
-    console.log('Athletic ability info updated successfully!');
-    return true; // 表示更新成功
+      // 调用 upsert 方法
+      let num = await this.agcDataBase.upsert([UserAthletic]);
+
+      // 根据返回结果判断成功或失败
+      if (num > 0) {
+        console.info(`Successfully updated/inserted ${num} records.`);
+        return true;
+      } else {
+        console.warn('No records were updated or inserted.');
+        return false;
+      }
+    } catch (err) {
+      // 错误处理
+      console.error(`Failed to upsert, error: `, err);
+      return false;
+    }
   }
 }

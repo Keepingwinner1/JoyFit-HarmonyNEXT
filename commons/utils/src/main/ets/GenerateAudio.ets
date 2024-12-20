@@ -1,27 +1,29 @@
 import { webSocket } from '@kit.NetworkKit';
-import { BusinessError } from '@kit.BasicServicesKit';
-import { UUIDGenerator } from './UUIDGenerator';
 import { fileIo } from '@kit.CoreFileKit';
+import { cloudStorage } from '@kit.CloudFoundationKit';
+import { BusinessError, request } from '@kit.BasicServicesKit';
+
+//参考通过WebSocket连接访问CosyVoice语音合成服务的官方文档实现
 
 // WebSocket连接的URL地址
 const url = 'wss://dashscope.aliyuncs.com/api-ws/v1/inference/';
 // 用户的API Key（请确保安全配置，不直接硬编码在生产环境中）
-const apiKey = 'your_api_key';  // 替换为你的API Key
+const apiKey = 'sk-8390fca298804bbe9457cb368c8767bb';  // 替换为你的API Key
 
-// 定义接口
+// 定义接口,用于承载信息
 interface HeaderOfTaskMessage {
   action: string;
   task_id: string;
   streaming: string;
 }
 
-interface Header {
+interface HeaderofResponseMessage {
   event: string;
   task_id: string;
   error_message?: string;
 }
 
-interface ParametersofText {
+interface ParametersofPayload {
   text_type: string;
   voice: string;
   format: string;
@@ -35,28 +37,29 @@ interface inputofText {
   text: string;
 }
 
-interface PayloadofTaskMessage {
+interface Payload {
   task_group: string;
   task: string;
   function: string;
   model: string;
-  parameters: ParametersofText;
+  parameters: ParametersofPayload;
   input: inputofText;
 }
 
-interface RunTaskMessage {
+interface TaskMessage {
   header: HeaderOfTaskMessage;
-  payload: PayloadofTaskMessage;
+  payload: Payload;
 }
 
 interface ResponseMessage {
-  header: Header;
-  payload: PayloadofTaskMessage;
+  header: HeaderofResponseMessage;
+  payload: Payload;
 }
 
-export const createWebSocketConnection = (userText: string) => {
+
+// 唯一的task_id由外部传参，这样可以直接记录音频在云端的位置
+export const createWebSocketConnection = (taskId:string,userText: string) => {
   let taskStarted = false;
-  const taskId = UUIDGenerator.getID();  // 生成唯一的task_id
   const ws = webSocket.createWebSocket(); // 创建 WebSocket 连接
 
   let options: webSocket.WebSocketRequestOptions | undefined;
@@ -74,7 +77,7 @@ export const createWebSocketConnection = (userText: string) => {
       console.log('WebSocket连接已成功建立');
 
       // 发送run-task指令启动语音合成任务
-      const runTaskMessage: RunTaskMessage = {
+      const runTaskMessage: TaskMessage = {
         header: {
           action: 'run-task',
           task_id: taskId, // 确保 taskId 是一个有效的字符串
@@ -139,7 +142,7 @@ export const createWebSocketConnection = (userText: string) => {
                     input: {
                       text: userText,
                     },
-                  }as PayloadofTaskMessage,
+                  }as Payload,
                 });
 
 
@@ -164,7 +167,7 @@ export const createWebSocketConnection = (userText: string) => {
                 } as HeaderOfTaskMessage,
                 payload: {
                   input: {},
-                } as PayloadofTaskMessage,
+                } as Payload,
               });
 
               ws.send(finishTaskMessage, (err: BusinessError, value: boolean) => {
@@ -194,6 +197,7 @@ export const createWebSocketConnection = (userText: string) => {
       // 写入二进制数据
       let context = getContext();
       let filesDir = context.cacheDir;
+      let cachefilePath= filesDir + '/.'+taskId+'.mp3';
       let file = fileIo.openSync(filesDir + '/.'+taskId+'.mp3', fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
 
       // 将二进制数据写入文件
@@ -207,10 +211,37 @@ export const createWebSocketConnection = (userText: string) => {
 
 
       //保存音频文件到云端
-      let cloudPath = 'audio/'+taskId+'.mp3';
+      let CloudPath = 'audio/'+taskId+'.mp3';
+      let storageBucket: cloudStorage.StorageBucket = cloudStorage.bucket();
 
+      storageBucket.uploadFile(getContext(), {
+        localPath: cachefilePath,
+        cloudPath: CloudPath,
+      }).then((task: request.agent.Task) => {
+        task.on('progress', (progress) => {
+          console.info(`on progress ${JSON.stringify(progress)}`);
+        });
+        task.on('completed', (progress) => {
+          console.info(`on completed ${JSON.stringify(progress)}`);
+        });
+        task.on('failed', (progress) => {
+          console.error(`on failed ${JSON.stringify(progress)}`);
+        });
+        task.on('response', (response) => {
+          console.info(`on response ${JSON.stringify(response)}`);
+        });
 
-
+        // start task
+        task.start((err: BusinessError) => {
+          if (err) {
+            console.error(`Failed to start the uploadFile task, Code: ${err.code}, message: ${err.message}`);
+          } else {
+            console.info(`Succeeded in starting a uploadFile task.`);
+          }
+        });
+      }).catch((err: BusinessError) => {
+        console.error(`Upload file failed, Code: ${err.code}, message: ${err.message}`);
+      });
 
 
     } else {

@@ -1,8 +1,10 @@
 import { cloudDatabase } from '@kit.CloudFoundationKit';
 
 export class UserInfo extends cloudDatabase.DatabaseObject{
-
-  public UserID : number | undefined;
+  public naturalbase_ClassName(): string {
+    return 'UserInfo';
+  }
+  public UserID : string | undefined;
   public NickName : string| undefined;
   public Avtar: string | undefined;
   public Age : number | undefined;
@@ -10,3 +12,4 @@ export class UserInfo extends cloudDatabase.DatabaseObject{
   public City : string | undefined;
 
 }
+

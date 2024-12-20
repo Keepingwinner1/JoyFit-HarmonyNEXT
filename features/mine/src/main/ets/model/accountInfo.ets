@@ -1,5 +1,5 @@
 
-export default class AccountInfo{
+export class accountInfo{
   //accountID?: string;
   phoneNumber?: string;
   password?: string;
