@@ -9,6 +9,8 @@
   "dependencies": {
     "@hzw/zrouter": "^1.1.0",
     "@pura/harmony-utils": "^1.2.3",
-    "@tencent/wechat_open_sdk": "1.0.4"
+    "@tencent/wechat_open_sdk": "1.0.4",
+    "@mcui/mccharts": "^2.8.3"
+
   }
 }

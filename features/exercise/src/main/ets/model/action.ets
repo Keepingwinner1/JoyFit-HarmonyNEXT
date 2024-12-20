@@ -2,13 +2,13 @@ import { Action } from "../bean/Action";
 import { PlanAction } from "../bean/PlanAction";
 
 export class actionInfo{
-  public ActionName: string | undefined;  // String类型
-  public ActonType: string | undefined;  // String类型
+  public ActionName: string ='';  // String类型
+  public ActonType: string | undefined;  // String类型  取值有：running,workout
   public ActionID: string | undefined;  // Integer类型
-  public Sets: number | undefined;  // Integer类型
-  public SingleSetNum: number | undefined;  // Integer类型
+  public Sets: number = 0;  // Integer类型
+  public SingleSetNum: number = 0;  // Integer类型
 
-  constructor(ActionName: string | undefined, ActionID: string | undefined,ActonType: string | undefined, Sets: number | undefined, SingleSetNum: number | undefined) {
+  constructor(ActionName: string , ActionID: string | undefined,ActonType: string | undefined, Sets: number, SingleSetNum: number ) {
     this.ActionName = ActionName;
     this.ActionID =ActionID;
     this.ActonType = ActonType;
@@ -19,24 +19,24 @@ export class actionInfo{
 }
 
 export class action {
-  public basicInfo : actionInfo| undefined;
+  public basicInfo : actionInfo;
   public IntroductionVideo: string | undefined;  // String类型
   public IntroductionVoice: string | undefined;  // String类型
-  public Description: string | undefined;  // Text类型
-  public TimeOfOne: number | undefined;  // Integer类型
-  public MainTrainingPart: string | undefined;  // String类型
-  public IsUserDefined: boolean | undefined;  // Boolean类型
-  public Calories: number| undefined;
+  public Description: string ='';  // String类型
+  public TimeOfOne: number = 0;  // Integer类型
+  public MainTrainingPart: string ='';  // String类型
+  public IsUserDefined: boolean =false;  // Boolean类型
+  public Calories: number =0;
 
   constructor(
-    basicInfo?: actionInfo,
-    IntroductionVideo?: string,
-    IntroductionVoice?: string,
-    Description?: string,
-    TimeOfOne?: number,
-    MainTrainingPart?: string,
-    IsUserDefined?: boolean,
-    Calories?:number
+    basicInfo: actionInfo,
+    IntroductionVideo: string,
+    IntroductionVoice: string,
+    Description: string,
+    TimeOfOne: number,
+    MainTrainingPart: string,
+    IsUserDefined: boolean,
+    Calories:number
   ) {
     this.basicInfo = basicInfo;
     this.IntroductionVideo = IntroductionVideo;
@@ -48,9 +48,16 @@ export class action {
     this.Calories =Calories;
   }
 
-  public static createFromAction(input1:Action,input2:PlanAction): action{
-    let basicInfo = new actionInfo(input1.ActionName,input1.ActionID,input1.ActonType,input2.Sets,input2.SingleSetNum);
-    return new action(basicInfo,input1.IntroductionVideo,input1.IntroductionVoice,input1.Description,input1.TimeOfOne,input1.MainTrainingPart,input1.IsUserDefined,input1.Carlories);
+  public static createFromAction(input1:Action,input2:PlanAction): action | null {
+    if(input1.ActionName != undefined && input2.Sets !=undefined && input2.SingleSetNum != undefined ){
+      let basicInfo = new actionInfo(input1.ActionName,input1.ActionID,input1.ActonType,input2.Sets,input2.SingleSetNum);
+      if(input1.IntroductionVoice!=undefined && input1.IntroductionVideo!=undefined && input1.Description!= undefined && input1.TimeOfOne!=undefined && input1.MainTrainingPart!=undefined&& input1.IsUserDefined && input1.Carlories)
+        return new action(basicInfo,input1.IntroductionVideo,input1.IntroductionVoice,input1.Description,input1.TimeOfOne,input1.MainTrainingPart,input1.IsUserDefined,input1.Carlories);
+      else
+        return null;
+    }
+    else
+      return null;
   }
 
 }

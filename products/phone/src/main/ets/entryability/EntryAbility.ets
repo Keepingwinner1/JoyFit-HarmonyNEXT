@@ -1,12 +1,13 @@
 import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import auth from '@hw-agconnect/auth';
 import { window } from '@kit.ArkUI';
 import { ZRouter } from '@hzw/zrouter';
-import BuildProfile from 'home/BuildProfile';
+import BuildProfile from 'uicomponents/BuildProfile';
 import { AppUtil } from '@pura/harmony-utils';
 import { buffer } from '@kit.ArkTS';
 import { cloudCommon } from '@kit.CloudFoundationKit';
+import auth from '@hw-agconnect/auth';
+
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
@@ -41,7 +42,6 @@ export default class EntryAbility extends UIAbility {
       }
       hilog.info(0x0000, 'testTag', 'Succeeded in loading the content.');
     });
-
   }
 
   onWindowStageDestroy(): void {
@@ -58,5 +58,4 @@ export default class EntryAbility extends UIAbility {
     // Ability has back to background
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onBackground');
   }
-
 }

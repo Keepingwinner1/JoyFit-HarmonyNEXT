@@ -30,6 +30,17 @@ export abstract class ExercisePlanService {
   public abstract getFeelingsByPlan(userID:string,planID:string);
   public abstract getRecords(userID:string,planID:string);
 
+  public createPlanBuilder(type:string):runningPlanBuilder|workoutPlanBuilder|null{
+    switch (type){
+      case 'running':
+        return new runningPlanBuilder();
+      case 'workout':
+        return new workoutPlanBuilder();
+      default:
+        return null;
+    }
+  }
+
   public async getActionsByPlanID(planID: string){
     let condition = new cloudDatabase.DatabaseQuery(PlanAction);
     condition.equalTo('PlanID', planID);
@@ -41,22 +52,17 @@ export abstract class ExercisePlanService {
       condition.equalTo('ActionID', planAction.ActionID);
       const goalAction : Action[] = await this.agcDataBase.query(condition);
       let actionRes =goalAction.pop();
-      if(actionRes!= undefined)
-        result.push(action.createFromAction(actionRes,planAction));
+      if(actionRes!= undefined){
+        let res = action.createFromAction(actionRes,planAction);
+        if(res != null)
+          result.push(res);
+      }
+
     }
     return result;
   }
 
-  public createPlanBuilder(type:string):runningPlanBuilder|workoutPlanBuilder|null{
-    switch (type){
-      case 'running':
-        return new runningPlanBuilder();
-      case 'workout':
-        return new workoutPlanBuilder();
-      default:
-        return null;
-    }
-  }
+
 
   public async finishTask(task:PlanTask): Promise<boolean> {
     try{
