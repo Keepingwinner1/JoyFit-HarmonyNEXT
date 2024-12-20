@@ -1,4 +1,4 @@
-export class AthleticAbility {
+export class athleticAbility {
   // 属性字段
   private _runningDistance: number;  // 跑步距离 (以公里为单位)
   private _pushUpNums: number;       // 俯卧撑数量
@@ -44,12 +44,9 @@ export class AthleticAbility {
     this._crunchNums =value;
   }
 
-  static create(runningDistance: number, pushUpNums: number, squatNums: number, crunchNums: number):AthleticAbility{
-    return new AthleticAbility(runningDistance, pushUpNums, squatNums, crunchNums);
+  static create(runningDistance: number, pushUpNums: number, squatNums: number, crunchNums: number):athleticAbility{
+    return new athleticAbility(runningDistance, pushUpNums, squatNums, crunchNums);
   }
 
-  static createFromCloud(): AthleticAbility{
-    //具体获取逻辑
-    return new AthleticAbility();
-  }
+
 }
