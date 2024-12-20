@@ -118,6 +118,7 @@ export default struct MinePage {
           Text('恭喜您获得成就')
             .fontSize(20)
             .fontWeight(FontWeight.Bold)
+          Text('成就名')
           Image($r(this.presentBadge.imageUrl))
             .height(130)
             .margin({top: 30})

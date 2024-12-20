@@ -17,6 +17,8 @@ class WorkoutPlan extends cloudDatabase.DatabaseObject {
   public RestTimeBetweenSets: number | undefined;  // Integer类型
   public RestTimeBetweenExercises: number | undefined;  // Integer类型
   public TotalTime: number | undefined;
+  public Description: string | undefined;
+  public Tag: string | undefined;
 }
 
 export { WorkoutPlan };

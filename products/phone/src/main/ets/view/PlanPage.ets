@@ -1,11 +1,58 @@
 import { ComposeListItem } from '@ohos.arkui.advanced.ComposeListItem'
 import { router } from '@kit.ArkUI'
+import { workoutPlan } from "exercise/src/main/ets/model/workoutPlan"
+import { WorkoutPlanService } from "exercise/src/main/ets/service/WorkoutPlanService"
+import { WorkoutPlan } from "exercise/src/main/ets/bean/WorkoutPlan"
 
-enum PlanStatus { Completed, Doing, Fail, Todo}
-
+// planStatus: NotStarted Abandoned InProgress Completed
 
 @ComponentV2
 export default struct PlanPage {
+  @Local isWorkOut: boolean = true
+  @Local inProgressPlanList: WorkoutPlan[] = [new WorkoutPlan(), new WorkoutPlan()]
+  @Local notStartedPlanList: WorkoutPlan[] = [new WorkoutPlan()]
+  @Local abandonedPlanList: WorkoutPlan[] = [new WorkoutPlan()]
+  @Local completedPlanList: WorkoutPlan[] = [new WorkoutPlan()]
+
+  private workoutPlanService: WorkoutPlanService = WorkoutPlanService.getInstance()
+
+  async aboutToAppear(): Promise<void> {
+    try {
+      this.inProgressPlanList[0].PlanName = '腹肌撕裂者'
+      this.inProgressPlanList[0].CoverPicture = 'app.media.test_plan_cover'
+      this.inProgressPlanList[0].Tag = '#腹肌 #核心'
+      this.inProgressPlanList[0].TotalTime = 45
+      this.inProgressPlanList[0].PlanState = 'InProgress'
+
+      this.inProgressPlanList[1].PlanName = '举重训练'
+      this.inProgressPlanList[1].CoverPicture = 'app.media.test_poster1'
+      this.inProgressPlanList[1].Tag = '#胸肌 #力量'
+      this.inProgressPlanList[1].TotalTime = 30
+      this.inProgressPlanList[1].PlanState = 'InProgress'
+
+      this.notStartedPlanList[0].PlanName = '腹肌撕裂者'
+      this.notStartedPlanList[0].CoverPicture = 'app.media.test_plan_cover'
+      this.notStartedPlanList[0].Tag = '#腹肌 #核心'
+      this.notStartedPlanList[0].TotalTime = 45
+      this.notStartedPlanList[0].PlanState = 'NotStarted'
+
+      this.abandonedPlanList[0].PlanName = '腹肌撕裂者'
+      this.abandonedPlanList[0].CoverPicture = 'app.media.test_plan_cover'
+      this.abandonedPlanList[0].Tag = '#腹肌 #核心'
+      this.abandonedPlanList[0].TotalTime = 45
+      this.abandonedPlanList[0].PlanState = 'Abandoned'
+
+      this.completedPlanList[0].PlanName = '腹肌撕裂者'
+      this.completedPlanList[0].CoverPicture = 'app.media.test_plan_cover'
+      this.completedPlanList[0].Tag = '#腹肌 #核心'
+      this.completedPlanList[0].TotalTime = 45
+      this.completedPlanList[0].PlanState = 'Completed'
+      //this.inProgressPlanList = await this.workoutPlanService.getInProgressPlan('')
+    }
+    catch (error) {
+    }
+  }
+
   build() {
     Column() {
       Swiper() {
@@ -31,25 +78,33 @@ export default struct PlanPage {
 
       Scroll() {
         Column() {
-          Text('正在执行')
-            .fontSize(20)
-            .fontWeight(FontWeight.Bold)
-            .decoration({ type: TextDecorationType.Underline, color: Color.Black })
-            .width('100%')
-            .margin({top: 20})
-          planItem({
-            planName: '腹肌撕裂者',
-            planCover: 'app.media.test_plan_cover',
-            tag: '#腹肌 #核心',
-            time: '45min',
-            type: PlanStatus.Doing
-          })
-          planItem({
-            planName: '举重训练',
-            planCover: 'app.media.test_poster1',
-            tag: '#胸肌 #力量',
-            time: '30min',
-            type: PlanStatus.Doing
+          Row() {
+            Text('正在执行')
+              .fontSize(20)
+              .fontWeight(FontWeight.Bold)
+              .decoration({ type: TextDecorationType.Underline, color: Color.Black })
+
+            Blank()
+            Row() {
+              Text(this.isWorkOut ? '健身' : '跑步')
+                .fontColor(Color.White)
+              Image($r('app.media.ic_reverse_order'))
+                .width(20)
+                .margin({left: 10})
+                .fillColor(Color.White)
+            }
+            .padding(8)
+            .backgroundColor("#ff2191fa")
+            .borderRadius(15)
+            .onClick(() => {
+              this.isWorkOut = !this.isWorkOut
+            })
+          }.width('100%').margin({top: 15, bottom: 5})
+
+          ForEach(this.inProgressPlanList, (item: WorkoutPlan, index) => {
+            planItem({
+              workoutPlan: item
+            })
           })
 
           Row() {
@@ -76,12 +131,11 @@ export default struct PlanPage {
           }
           .width('100%')
           .justifyContent(FlexAlign.SpaceBetween)
-          planItem({
-            planName: '举重训练',
-            planCover: 'app.media.test_poster1',
-            tag: '#胸肌 #力量',
-            time: '30min',
-            type: PlanStatus.Todo
+
+          ForEach(this.notStartedPlanList, (item: WorkoutPlan, index) => {
+            planItem({
+              workoutPlan: item
+            })
           })
 
           Text('历史计划')
@@ -90,19 +144,15 @@ export default struct PlanPage {
             .decoration({ type: TextDecorationType.Underline, color: Color.Black })
             .margin({top: 10})
             .width('100%')
-          planItem({
-            planName: '举重训练',
-            planCover: 'app.media.test_poster1',
-            tag: '#胸肌 #力量',
-            time: '30min',
-            type: PlanStatus.Fail
+          ForEach(this.completedPlanList, (item: WorkoutPlan, index) => {
+            planItem({
+              workoutPlan: item
+            })
           })
-          planItem({
-            planName: '举重训练',
-            planCover: 'app.media.test_poster1',
-            tag: '#胸肌 #力量',
-            time: '30min',
-            type: PlanStatus.Completed
+          ForEach(this.abandonedPlanList, (item: WorkoutPlan, index) => {
+            planItem({
+              workoutPlan: item
+            })
           })
         }
       }
@@ -121,38 +171,34 @@ export default struct PlanPage {
 
 @ComponentV2
 struct planItem {
-  @Param planName: string = ''
-  @Param planCover: string = ''
-  @Param tag: string = ''
-  @Param time: string = ''
-  @Param type: PlanStatus = PlanStatus.Completed
+  @Param workoutPlan: WorkoutPlan = new WorkoutPlan()
 
   private statusImage: string = ''
   private statusText: string = ''
   private statusColor: string = ''
 
   aboutToAppear(): void {
-    if(this.type == PlanStatus.Completed) {this.statusImage = 'app.media.ic_checkmark'; this.statusText = '已完成'; this.statusColor = '#ff43cd0e'}
-    else if(this.type == PlanStatus.Doing) {this.statusImage = 'app.media.ic_fast_forward'; this.statusText = '进行中'; this.statusColor = '#ffdd4141'}
-    else if(this.type == PlanStatus.Fail) {this.statusImage = 'app.media.ic_xmark'; this.statusText = '已放弃'; this.statusColor = '#ff474747'}
-    else if(this.type == PlanStatus.Todo) {this.statusImage = 'app.media.ic_clock'; this.statusText = '待开始'; this.statusColor = '#fffa6a0a'}
+    if(this.workoutPlan.PlanState == 'Completed') {this.statusImage = 'app.media.ic_checkmark'; this.statusText = '已完成'; this.statusColor = '#ff43cd0e'}
+    else if(this.workoutPlan.PlanState == 'InProgress') {this.statusImage = 'app.media.ic_fast_forward'; this.statusText = '进行中'; this.statusColor = '#ffdd4141'}
+    else if(this.workoutPlan.PlanState == 'Abandoned') {this.statusImage = 'app.media.ic_xmark'; this.statusText = '已放弃'; this.statusColor = '#ff474747'}
+    else if(this.workoutPlan.PlanState == 'NotStarted') {this.statusImage = 'app.media.ic_clock'; this.statusText = '待开始'; this.statusColor = '#fffa6a0a'}
   }
 
   build() {
     Row() {
-      Image($r(this.planCover))
+      Image($r(this.workoutPlan.CoverPicture))
         .height('100%')
         .borderRadius(10)
 
       Column() {
-        Text(this.planName)
+        Text(this.workoutPlan.PlanName)
           .fontWeight(FontWeight.Bold)
         Column() {
-          Text(this.tag)
+          Text(this.workoutPlan.Tag)
             .fontSize(12)
             .fontColor('#6d000000')
             .fontWeight(FontWeight.Bold)
-          Text(this.time)
+          Text(`${this.workoutPlan.TotalTime?.toString()}min`)
             .fontSize(12)
             .fontColor('#6d000000')
         }
