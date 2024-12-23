@@ -11,17 +11,19 @@ export class actionBuilder {
   private _mainTrainingPart: string;
   private _isUserDefined: boolean;
   private _calories: number;
+  private _note:string;
 
-
-  constructor(type:string) {
-    this._basicInfo = new actionInfo('','',type,0,0);
+  //按照动作训练部位进行初始化
+  constructor(trainingpart:string) {
+    this._basicInfo = new actionInfo('','',0,0);
+    this._mainTrainingPart=trainingpart;//动作部位
     this._introductionVideo='';
     this._introductionVoice='';
     this._description='';
     this._timeOfOne=0;
-    this._mainTrainingPart='';
     this._isUserDefined=false;
     this._calories=0;
+    this._note='';
   }
 
   sets(num: number):actionBuilder {
@@ -69,6 +71,13 @@ export class actionBuilder {
     return this;
   }
 
+  note(Note: string):actionBuilder {
+    this._note = Note;
+    return this;
+  }
+
+
+
   public build(): action {
     return new action(
       this._basicInfo,
@@ -79,6 +88,7 @@ export class actionBuilder {
       this._mainTrainingPart,
       this._isUserDefined,
       this._calories,
+      this._note,
     );
   }
 }
