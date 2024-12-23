@@ -2,17 +2,54 @@ import { Action } from "../bean/Action";
 import { PlanAction } from "../bean/PlanAction";
 
 export class actionInfo{
-  public ActionName: string ='';  // String类型
-  public ActionID: string | undefined;  // Integer类型
-  public Sets: number = 0;  // Integer类型
-  public SingleSetNum: number = 0;  // Integer类型
+  private _ActionName: string = '';  // String类型
 
-  constructor(ActionName: string , ActionID: string | undefined, Sets: number, SingleSetNum: number ) {
-    this.ActionName = ActionName;
-    this.ActionID =ActionID;
-    this.Sets = Sets;
-    this.SingleSetNum = SingleSetNum;
+  public set ActionName(value: string) {
+    this._ActionName = value;
   }
+
+  public get ActionName(): string {
+    return this._ActionName;
+  }
+
+  private _ActionID: string | undefined;  // Integer类型
+
+  public set ActionID(value: string | undefined) {
+    this._ActionID = value;
+  }
+
+  public get ActionID(): string | undefined {
+    return this._ActionID;
+  }
+
+  private _Sets: number = 0;  // Integer类型
+
+  public set Sets(value: number) {
+    this._Sets = value;
+  }
+
+  public get Sets(): number {
+    return this._Sets;
+  }
+
+  private _SingleSetNum: number = 0;  // Integer类型
+
+  public set SingleSetNum(value: number) {
+    this._SingleSetNum = value;
+  }
+
+  public get SingleSetNum(): number {
+    return this._SingleSetNum;
+  }
+
+
+
+  // constructor(ActionName: string , ActionID: string | undefined, Sets: number, SingleSetNum: number ) {
+  //   this.ActionName = ActionName;
+  //   this.ActionID =ActionID;
+  //   this.Sets = Sets;
+  //   this.SingleSetNum = SingleSetNum;
+  // }
 
 }
 
@@ -51,7 +88,11 @@ export class action {
 
   public static createFromAction(input1:Action,input2:PlanAction): action | null {
     if(input1.ActionName != undefined && input2.Sets !=undefined && input2.SingleSetNum != undefined ){
-      let basicInfo = new actionInfo(input1.ActionName,input1.ActionID,input2.Sets,input2.SingleSetNum);
+      let basicInfo = new actionInfo();
+      basicInfo.ActionName = input1.ActionName;
+      basicInfo.ActionID =input1.ActionID;
+      basicInfo.Sets= input2.Sets;
+      basicInfo.SingleSetNum = input2.SingleSetNum;
       if(input1.IntroductionVoice!=undefined && input1.IntroductionVideo!=undefined && input1.Description!= undefined && input1.TimeOfOne!=undefined && input1.MainTrainingPart!=undefined&& input1.IsUserDefined && input1.Carlories&&input1.Note!=undefined)
         return new action(basicInfo,input1.IntroductionVideo,input1.IntroductionVoice,input1.Description,input1.TimeOfOne,input1.MainTrainingPart,input1.IsUserDefined,input1.Carlories,input1.Note);
       else

@@ -3,9 +3,11 @@ import {WorkoutPlan} from'../bean/WorkoutPlan'
 import { cloudDatabase } from '@kit.CloudFoundationKit';
 import { workoutPlan } from'../model/workoutPlan'
 import { PlanAction } from '../bean/PlanAction';
-import { action } from '../model/action';
+import { action, actionInfo } from '../model/action';
 import { PlanTask } from '../bean/PlanTask';
 import { WorkoutRecord } from '../bean/WorkoutRecord';
+import { workoutPlanBuilder } from '../model/workoutPlanBuilder';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export class WorkoutPlanService extends ExercisePlanService {
 
@@ -22,6 +24,10 @@ export class WorkoutPlanService extends ExercisePlanService {
     return  WorkoutPlanService.instance;
   }
 
+  public createPlanBuilder(): workoutPlanBuilder {
+    return new workoutPlanBuilder();
+  }
+
   private ToBean(plan:workoutPlan,id:string){
     let planContent =new WorkoutPlan();
     planContent.PlanID = plan.PlanID;
@@ -34,25 +40,18 @@ export class WorkoutPlanService extends ExercisePlanService {
     planContent.StartDate =plan.StartDate;
     planContent.RestTimeBetweenSets = plan.RestTimeBetweenSets;
     planContent.RestTimeBetweenExercises =plan.RestTimeBetweenExercises;
-    //遍历所有动作计算总耗时
-    let time = 0;
-    for(let action of plan.includedActions){
-      let time1 = action.TimeOfOne * action.basicInfo.SingleSetNum;
-      let time2 = (action.basicInfo.Sets-1)* plan.RestTimeBetweenSets;
-      time += time1;
-      time += time2;
-      time+= plan.RestTimeBetweenExercises;
-    }
-    planContent.TotalTime = time;
+    planContent.TotalTime =plan.TotalTime;
+    planContent.Tag = plan.Tag;
+    planContent.Description =plan.Description;
     return planContent;
   }
 
-  private planActionToBean(plan:workoutPlan,_action:action){
+  private planActionToBean(plan:workoutPlan,_action:actionInfo){
     let planAction = new PlanAction();
     planAction.PlanID = plan.PlanID;
-    planAction.ActionID = _action.basicInfo?.ActionID;
-    planAction.Sets =_action.basicInfo?.Sets;
-    planAction.SingleSetNum =_action.basicInfo?.SingleSetNum;
+    planAction.ActionID = _action.ActionID;
+    planAction.Sets =_action.Sets;
+    planAction.SingleSetNum =_action.SingleSetNum;
     return planAction;
   }
 
@@ -75,7 +74,7 @@ export class WorkoutPlanService extends ExercisePlanService {
         //向WorkoutPlan表中插入记录
         await this.agcDataBase?.upsert(planContent);
         //向PlanTask插入待办任务
-        await this.agcDataBase?.upsert(planContent);
+        await this.agcDataBase?.upsert(taskArr);
         return true;
       } catch (err) {
         return false;

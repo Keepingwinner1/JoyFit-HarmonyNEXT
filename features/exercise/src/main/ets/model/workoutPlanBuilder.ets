@@ -4,16 +4,26 @@ import { PlanBuilder} from './planBuilder'
 export class workoutPlanBuilder extends PlanBuilder {
   public RestTimeBetweenSets: number = 5;
   public RestTimeBetweenExercises: number = 10;
+  public TotalTime: number =0;
+
+  constructor(){
+    super();
+  }
 
   // 设置 RestTimeBetweenSets
-  setRestTimeBetweenSets(RestTimeBetweenSets: number): workoutPlanBuilder {
+  public setRestTimeBetweenSets(RestTimeBetweenSets: number): workoutPlanBuilder {
     this.RestTimeBetweenSets = RestTimeBetweenSets;
     return this;
   }
 
   // 设置 RestTimeBetweenExercises
-  setRestTimeBetweenExercises(RestTimeBetweenExercises: number): workoutPlanBuilder {
+  public setRestTimeBetweenExercises(RestTimeBetweenExercises: number): workoutPlanBuilder {
     this.RestTimeBetweenExercises = RestTimeBetweenExercises;
+    return this;
+  }
+
+  public setTotalTime(TotalTime: number): workoutPlanBuilder{
+    this.TotalTime =TotalTime;
     return this;
   }
 

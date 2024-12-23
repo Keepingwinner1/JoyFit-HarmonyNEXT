@@ -5,6 +5,7 @@ import {runningPlan} from '../model/runningPlan'
 import { PlanTask } from '../bean/PlanTask';
 import {UUIDGenerator} from 'utils'
 import { RunningRecord } from '../bean/RunningRecord';
+import { runningPlanBuilder } from '../model/runningPlanBuilder';
 
 export class RunningPlanService extends ExercisePlanService{
 
@@ -19,6 +20,10 @@ export class RunningPlanService extends ExercisePlanService{
       RunningPlanService.instance = new  RunningPlanService();
     }
     return  RunningPlanService.instance;
+  }
+
+  public createPlanBuilder(): runningPlanBuilder {
+    return new runningPlanBuilder();
   }
 
   public async getTodayTasks(userID:string): Promise<RunningPlan[]>{

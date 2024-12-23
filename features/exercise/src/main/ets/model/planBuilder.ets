@@ -1,6 +1,7 @@
 import{exercisePlan} from './exercisePlan'
 import{Action} from'../bean/Action'
 import {UUIDGenerator} from 'utils'
+import { actionInfo } from './action';
 
 // PlanBuilder 基类
 export abstract class PlanBuilder {
@@ -12,7 +13,20 @@ export abstract class PlanBuilder {
   public DayOfWeek: string = '1#3#5';
   public StartDate: Date = new Date();
   public EndDate: Date = new Date();
-  public SelectedActions :Action[] = [];
+  public Tag: string ='';
+  public Description: string =''
+  public SelectedActions :actionInfo[] = [];
+
+
+  setDescription(des: string){
+    this.Description =des;
+    return this;
+  }
+
+  setTag(tag:string){
+    this.Tag=tag;
+    return this;
+  }
 
   setPlanID(PlanID:string):PlanBuilder{
     this.PlanID =PlanID;
@@ -63,8 +77,9 @@ export abstract class PlanBuilder {
   }
 
   //添加动作
-  addAction(selectedAction: Action) : PlanBuilder{
-    this.SelectedActions.push(selectedAction);
+  addActions(selectedActions: actionInfo[]) : PlanBuilder{
+    for(let action of selectedActions)
+      this.SelectedActions.push(action);  //是否支持？
     return this;
   }
 

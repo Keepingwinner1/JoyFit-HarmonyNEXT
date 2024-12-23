@@ -7,7 +7,7 @@ export class runningPlan extends exercisePlan{
   public GoalOfSpeed: number | undefined;
 
   constructor(builder: runningPlanBuilder) {
-    super();
+    super(builder);
     this.GoalOfTotalTime = builder.GoalOfTotalTime;
     this.GoalOfTotalMiles = builder.GoalOfTotalMiles;
     this.GoalOfSpeed = builder.GoalOfSpeed;

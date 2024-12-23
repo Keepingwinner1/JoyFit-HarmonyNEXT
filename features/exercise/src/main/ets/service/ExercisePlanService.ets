@@ -29,17 +29,17 @@ export abstract class ExercisePlanService {
   public abstract uploadFeelings(record:RunningRecord|WorkoutRecord);
   public abstract getFeelingsByPlan(userID:string,planID:string);
   public abstract getRecords(userID:string,planID:string);
-
-  public createPlanBuilder(type:string):runningPlanBuilder|workoutPlanBuilder|null{
-    switch (type){
-      case 'running':
-        return new runningPlanBuilder();
-      case 'workout':
-        return new workoutPlanBuilder();
-      default:
-        return null;
-    }
-  }
+  public abstract createPlanBuilder():runningPlanBuilder|workoutPlanBuilder;
+  //{
+    // switch (type){
+    //   case 'running':
+    //     return new runningPlanBuilder();
+    //   case 'workout':
+    //     return new workoutPlanBuilder();
+    //   default:
+    //     return null;
+    // }
+ // }
 
   public async getActionsByPlanID(planID: string){
     let condition = new cloudDatabase.DatabaseQuery(PlanAction);
@@ -57,7 +57,6 @@ export abstract class ExercisePlanService {
         if(res != null)
           result.push(res);
       }
-
     }
     return result;
   }
