@@ -23,6 +23,10 @@ export default struct PlanPage {
       this.inProgressPlanList[0].Tag = '#腹肌 #核心'
       this.inProgressPlanList[0].TotalTime = 45
       this.inProgressPlanList[0].PlanState = 'InProgress'
+      this.inProgressPlanList[0].Description = '本计划全程贯穿“燃脂”+“塑形”策略，非常适合体重适中的JoyFiter增强腹部肌肉'
+      this.inProgressPlanList[0].StartDate = new Date()
+      this.inProgressPlanList[0].EndDate = new Date()
+      this.inProgressPlanList[0].DayOfWeek = '0#1#4'
 
       this.inProgressPlanList[1].PlanName = '举重训练'
       this.inProgressPlanList[1].CoverPicture = 'app.media.test_poster1'
@@ -239,5 +243,13 @@ struct planItem {
     .width('100%')
     .borderRadius(20)
     .margin({bottom: 5, top: 10})
+    .onClick(() => {
+      router.pushUrl({
+        url: "pages/CreatePlanPage",
+        params: {
+          workoutPlan: this.workoutPlan
+        }
+      })
+    })
   }
 }

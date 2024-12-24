@@ -1,16 +1,33 @@
 import { router } from '@kit.ArkUI'
+import { WorkoutPlan } from 'exercise/src/main/ets/bean/WorkoutPlan'
+
+interface ParamsObj {
+  workoutPlan: WorkoutPlan
+}
 
 @Entry
 @ComponentV2
 struct CreatePlanPage {
+  @Local workoutPlan: WorkoutPlan = new WorkoutPlan()
+
   @Local startDate: Date = new Date()
   @Local endDate: Date = new Date()
-  @Local planName: string = '腹肌撕裂者'
-  @Local planDescription: string = '本计划全程贯穿“燃脂”+“塑形”策略，非常适合体重适中的JoyFiter增强腹部肌肉'
+  @Local dayOfWeek: string = ''
   @Local weekdayIsSelected: boolean[] = [false, false, false, false, false, false, false]
 
   private weekdaysList: string[] = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
 
+
+  aboutToAppear(): void {
+    const params = router.getParams() as ParamsObj
+    this.workoutPlan = params.workoutPlan
+    if(this.workoutPlan.StartDate instanceof Date)
+      this.startDate = this.workoutPlan.StartDate
+    if(this.workoutPlan.EndDate instanceof Date)
+      this.endDate = this.workoutPlan.EndDate
+    for(let i = 0; i < this.workoutPlan.DayOfWeek.length; i += 2)
+      this.weekdayIsSelected[(Number(this.workoutPlan.DayOfWeek[i]) + 6) % 7] = true
+  }
 
   build() {
     Column() {
@@ -33,55 +50,29 @@ struct CreatePlanPage {
       .width('100%')
       .justifyContent(FlexAlign.SpaceBetween)
       .padding({left: 30, right: 30, bottom: 15})
-      // Row() {
-      //   Image($r('app.media.ic_arrow_left'))
-      //     .width(25)
-      //     .onClick(() => {
-      //       router.back()
-      //     })
-      //   Text('计划创建')
-      //     .fontSize(20)
-      //     .fontWeight(FontWeight.Regular)
-      //   Text('完成')
-      //     .backgroundColor(Color.Green)
-      //     .fontColor(Color.White)
-      //     .padding({top: 5, bottom: 5, left: 10, right: 10})
-      //     .borderRadius(10)
-      //     .onClick(() => {
-      //       router.back()
-      //     })
-      // }
-      // .width('100%')
-      // .justifyContent(FlexAlign.SpaceBetween)
-      // .padding(10)
 
       Column() {
-
         TextInput({
           placeholder: '请输入计划名...',
-          text: $$this.planName
+          text: $$this.workoutPlan.PlanName
         })
           .fontSize(20)
           .fontWeight(FontWeight.Bold)
           .backgroundColor("#ffeeeeee")
         Row() {
-          Image($r('app.media.test_plan_cover'))
+          Image($r(this.workoutPlan.CoverPicture))
             .height(80)
             .width(80)
             .borderRadius(15)
             .margin({right: 10})
           TextArea({
             placeholder: '请输入计划描述...',
-            text: $$this.planDescription
+            text: $$this.workoutPlan.Description
           })
             .fontSize(14)
             .width(200)
             .fontColor('#b2000000')
             .backgroundColor(Color.White)
-          // Text(this.planDescription)
-          //   .fontSize(14)
-          //   .width(190)
-          //   .fontColor('#b2000000')
         }
         .width('100%')
         .alignItems(VerticalAlign.Top)
@@ -180,14 +171,6 @@ struct CreatePlanPage {
       .alignItems(HorizontalAlign.Center)
     }
   }
-  // @Builder
-  // yearSelectMenu() {
-  //   Menu() {
-  //     ForEach(Array.from({length: 3}), (item: number, index) =>{
-  //       MenuItem({ content: (index + 2024).toString() })
-  //     })
-  //   }
-  // }
 }
 
 @ComponentV2

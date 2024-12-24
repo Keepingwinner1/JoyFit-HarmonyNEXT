@@ -99,7 +99,16 @@ export default struct MinePage {
             .strokeWidth(18)
             .trackShadow({ radius: 7, offsetX: 7, offsetY: 7 })
             .padding(18)
-          }.width('50%')
+          }.width('45%')
+          .backgroundColor(Color.White)
+          .borderRadius(10)
+
+          Blank()
+
+          // 体质表信息
+          Column() {
+
+          }.width('45%').height(180)
           .backgroundColor(Color.White)
           .borderRadius(10)
         }.width('100%').height(180)
