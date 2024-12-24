@@ -26,7 +26,7 @@ export abstract class ExercisePlanService {
   public abstract getNotStartedPlan(userID:string);
   public abstract getInProgressPlan(userID:string);
   public abstract getAbandonedPlan(userID:string);
-  public abstract deleteNotStartedPlan(plan:RunningPlan|WorkoutPlan);
+  //public abstract deleteNotStartedPlan(plan:RunningPlan|WorkoutPlan);
   public abstract abandonInProgressPlan(plan:RunningPlan|WorkoutPlan);
   public abstract uploadFeelings(record:RunningRecord|WorkoutRecord);
   public abstract getFeelingsByPlan(userID:string,planID:string);
@@ -72,7 +72,6 @@ export abstract class ExercisePlanService {
       condition.equalTo('TaskID', taskID);
       const task : PlanTask[] = await this.agcDataBase.query(condition);
       let res = task.pop();
-      //hilog.info(1,'完成',)
       if(res!=undefined)
         res.State = "Completed";
       await this.agcDataBase?.upsert(res);

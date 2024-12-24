@@ -12,19 +12,18 @@ import {PlanTask} from "exercise"
   public async finishTask(task:PlanTask): Promise<boolean> ok
   public async abandonTask(task:PlanTask): Promise<boolean> ok
   public abstract uploadPlan(plan:exercisePlan);  ok
-  public async deletePlan(planID: string);
+  public async deletePlan(planID: string);  ok  //只允许删除未开始的计划
   public abstract getTodayTasks(userID:string);  ok
-  public abstract updatePlan(plan:exercisePlan,userID:string);
-  public abstract getCompletedPlan(userID:string);
-  public abstract getNotStartedPlan(userID:string);
-  public abstract getInProgressPlan(userID:string);
-  public abstract getAbandonedPlan(userID:string);
-  public abstract deleteNotStartedPlan(plan:RunningPlan|WorkoutPlan);
+  public abstract updatePlan(plan:exercisePlan);  ok  莫名需要调用两次才成功
+  public abstract getCompletedPlan(userID:string); ok   //需要验证云端逻辑
+  public abstract getNotStartedPlan(userID:string);  ok
+  public abstract getInProgressPlan(userID:string);  ok  //需要验证云端逻辑
+  public abstract getAbandonedPlan(userID:string);  ok
   public abstract abandonInProgressPlan(plan:RunningPlan|WorkoutPlan);
   public abstract uploadFeelings(record:RunningRecord|WorkoutRecord);
   public abstract getFeelingsByPlan(userID:string,planID:string);
   public abstract getRecords(userID:string,planID:string);
-  public abstract createPlanBuilder():runningPlanBuilder|workoutPlanBuilder;
+  public abstract createPlanBuilder():runningPlanBuilder|workoutPlanBuilder; ok
  * */
 
 
@@ -33,6 +32,8 @@ import {PlanTask} from "exercise"
 struct Index {
   @State todayTasks: WorkoutPlan[] = [];
   @State todayTasksString: string ='';
+  @State NotStartedPlan: WorkoutPlan[] =[];
+  @State NotStartedPlanString: string ='';
   ex: WorkoutPlanService = WorkoutPlanService.getInstance();
 
   build() {
@@ -49,7 +50,7 @@ struct Index {
 
       Button('删除计划')
         .onClick(()=>{
-          this.ex.deletePlan('16,33,86');
+          this.ex.deletePlan('224,216,128');
         })
 
       Button('获取今日任务')  //会返回所有今天的任务，未做已完成、已放弃、待完成区分，可以利用State字段实现
@@ -73,18 +74,28 @@ struct Index {
         })
 
       //this.text = UUIDGenerator.getID();
+
+      Button('获取未开始计划')  //其余三个同理
+        .onClick(()=>{
+          this.ex.getNotStartedPlan('1').then((result:WorkoutPlan[])=>{
+            this.NotStartedPlan = result; //可以直接使用这个变量进行后续展示处理
+            this.NotStartedPlanString  = JSON.stringify(result);
+          }
+          )
+        })
+      Text(this.NotStartedPlanString)
     }
     .justifyContent(FlexAlign.Center)
     .height('100%')
     .width('100%')
   }
 
-  updatePlan(){
+  getWorkoutPlan(){
     let test_workoutBuilder= this.ex.createPlanBuilder();
     //初始化动作
     let actioninfo: actionInfo = new actionInfo();
     actioninfo.ActionName ='动作3'; //所选动作填入
-    actioninfo.ActionID = '333'; //所选动作填入
+    actioninfo.ActionID = '888'; //所选动作填入
     actioninfo.Sets = 3;
     actioninfo.SingleSetNum =5 ;
 
@@ -100,16 +111,15 @@ struct Index {
     let startDate = new Date();
     let endDate = new Date();
     endDate.setDate(startDate.getDate()+1);
-
     test_workoutBuilder
-      .setPlanID('16,33,86') //以下两项为固定设置
+      .setPlanID('221,23,112') //以下两项为固定设置
       .setPlanState('NotStarted')
       .setUserID('1') //根据真实值传入
       .setPlanName('测试健身计划')  //以下方法当用户修改时可以再次调用传入新值
       .setCoverPicture('url:test')
       .setStartDate(startDate)
       .setEndDate(endDate)
-      .setDayOfWeek("1#2#3")
+      .setDayOfWeek("2")
       .setDescription("这是更新后的健身计划");
     test_workoutBuilder
       .setRestTimeBetweenSets(2)//下面属性设置只能直接跟在test_workoutBuilder后面调用
@@ -120,8 +130,14 @@ struct Index {
     test_workoutBuilder
       .setTotalTime(this.getTotalTime())  //需要实现一个方法来计算总时间
       .build();//调用build方法返回完整对象
-    let test_workoutPlan = new workoutPlan(test_workoutBuilder);
-    this.ex.updatePlan(test_workoutPlan);
+    return new workoutPlan(test_workoutBuilder);
+  }
+
+  updatePlan(){
+    let plan =this.getWorkoutPlan();
+    if(plan.PlanID!=undefined)
+      this.ex.deletePlan(plan.PlanID)
+    this.ex.uploadPlan(plan);
   }
 
   uploadPlan(){
@@ -147,15 +163,15 @@ struct Index {
     endDate.setDate(startDate.getDate()+1);
 
     test_workoutBuilder
-      .setPlanID(UUIDGenerator.getID()) //以下两项为固定设置
-      .setPlanState('NotStarted')
+      // .setPlanID(UUIDGenerator.getID()) //以下两项为固定设置
+      // .setPlanState('NotStarted')
       .setUserID('1') //根据真实值传入
       .setPlanName('测试健身计划')  //以下方法当用户修改时可以再次调用传入新值
       .setCoverPicture('url:test')
       .setStartDate(startDate)
       .setEndDate(endDate)
       .setDayOfWeek("1#2#3")
-      .setDescription("这是一个测试健身计划");
+      .setDescription("这是一个666测试健身计划");
     test_workoutBuilder
       .setRestTimeBetweenSets(2)//下面属性设置只能直接跟在test_workoutBuilder后面调用
       .setRestTimeBetweenExercises(3)

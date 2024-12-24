@@ -95,29 +95,23 @@ export class WorkoutPlanService extends ExercisePlanService {
     let deleteNum2 = this.agcDataBase.delete(Array2);
   }
 
+
   public async deletePlan(planID: string) {
     let condition = new cloudDatabase.DatabaseQuery(WorkoutPlan);
     condition.equalTo('PlanID',planID);
     let res = await this.agcDataBase.query(condition);
-    hilog.info(1,'返回结果',JSON.stringify(res))
-    let num=await this.agcDataBase.delete(res);
-    hilog.info(1,'删除数量',num.toString());
-    //  this.agcDataBase.query(condition).then((result)=>{
-    //    this.agcDataBase.delete(result).then(()=>{
-    //      this.deleteTask(planID).then(()=>{
-    //        this.deletePlanAction(planID);
-    //      })
-    //    })
-    // });
+    let num= await this.agcDataBase.delete(res);
+    //hilog.info(1,'删除数量',num.toString());
+    this.deleteTask(planID);
+    this.deletePlanAction(planID);
   }
 
-  public async updatePlan(plan: workoutPlan): Promise<boolean> {
+  public async updatePlan(plan: workoutPlan) {
     //首先删除所有之前的计划记录（先查后删）
     try{
       if(plan.PlanID != undefined)
-        this.deletePlan(plan.PlanID).then(()=>{
-          this.uploadPlan(plan);
-        })
+        await this.deletePlan(plan.PlanID);
+      this.uploadPlan(plan);
       //再上传一个新的计划
       return true;
     } catch (err) {
@@ -187,17 +181,17 @@ export class WorkoutPlanService extends ExercisePlanService {
     return planArray;
   }
 
-  public async deleteNotStartedPlan(plan:WorkoutPlan){
-    try{
-      let deleteNum = await this.agcDataBase.delete(plan);
-      console.info(`Succeeded in deleting plan , result: ${deleteNum}`);
-      return true;
-    }
-    catch(err){
-      console.info(`Failed in deleting a plan: ${JSON.stringify(err)} `);
-      return false;
-    }
-  }
+  // public async deleteNotStartedPlan(plan:WorkoutPlan){
+  //   try{
+  //     let deleteNum = await this.agcDataBase.delete(plan);
+  //     console.info(`Succeeded in deleting plan , result: ${deleteNum}`);
+  //     return true;
+  //   }
+  //   catch(err){
+  //     console.info(`Failed in deleting a plan: ${JSON.stringify(err)} `);
+  //     return false;
+  //   }
+  // }
 
   public async abandonInProgressPlan(targetPlan:WorkoutPlan){
     try{
