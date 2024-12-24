@@ -12,7 +12,7 @@ class WorkoutPlan extends cloudDatabase.DatabaseObject {
   public CoverPicture: string | undefined;  // String类型
   public PlanState: string | undefined;  // String类型
   public EndDate: Date | undefined;  // Integer类型
-  public DayOfWeek: string | undefined;  // String类型
+  public DayOfWeek: string = '';  // String类型
   public StartDate: Date | undefined;  // Date类型
   public RestTimeBetweenSets: number | undefined;  // Integer类型
   public RestTimeBetweenExercises: number | undefined;  // Integer类型
