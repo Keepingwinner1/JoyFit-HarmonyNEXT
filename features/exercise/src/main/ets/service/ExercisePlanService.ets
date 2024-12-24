@@ -11,6 +11,8 @@ import { PlanTask } from '../bean/PlanTask';
 import { UUIDGenerator } from 'utils';
 import { RunningRecord } from '../bean/RunningRecord';
 import { WorkoutRecord } from '../bean/WorkoutRecord';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { JSON } from '@kit.ArkTS';
 
 export abstract class ExercisePlanService {
 
@@ -30,6 +32,7 @@ export abstract class ExercisePlanService {
   public abstract getFeelingsByPlan(userID:string,planID:string);
   public abstract getRecords(userID:string,planID:string);
   public abstract createPlanBuilder():runningPlanBuilder|workoutPlanBuilder;
+  public abstract deletePlan(planID:string);
   //{
     // switch (type){
     //   case 'running':
@@ -63,10 +66,16 @@ export abstract class ExercisePlanService {
 
 
 
-  public async finishTask(task:PlanTask): Promise<boolean> {
+  public async finishTask(taskID:string): Promise<boolean> {
     try{
-      task.State = "Completed";
-      await this.agcDataBase?.upsert(task);
+      let condition = new cloudDatabase.DatabaseQuery(PlanTask);
+      condition.equalTo('TaskID', taskID);
+      const task : PlanTask[] = await this.agcDataBase.query(condition);
+      let res = task.pop();
+      //hilog.info(1,'完成',)
+      if(res!=undefined)
+        res.State = "Completed";
+      await this.agcDataBase?.upsert(res);
       console.info(`Succeeded in completing a task.`);
       return true;
     }
@@ -76,10 +85,16 @@ export abstract class ExercisePlanService {
     }
   }
 
-  public async abandonTask(task:PlanTask): Promise<boolean> {
+  public async abandonTask(taskID:string): Promise<boolean> {
     try{
-      task.State = "Abandoned";
-      await this.agcDataBase?.upsert(task);
+      let condition = new cloudDatabase.DatabaseQuery(PlanTask);
+      condition.equalTo('TaskID', taskID);
+      const task : PlanTask[] = await this.agcDataBase.query(condition);
+      let res = task.pop();
+      hilog.info(0,'测试',JSON.stringify(res));
+      if(res!=undefined)
+        res.State = "Abandoned";
+      await this.agcDataBase?.upsert(res);
       console.info(`Succeeded in abandoning a task.`);
       return true;
     }
@@ -119,7 +134,7 @@ export abstract class ExercisePlanService {
     task.PlanID =planID;
     task.ExecutedDate =date;
     task.State = 'Pending';
-    task.TaskType ='running';
+    task.TaskType ='workout';
     return task;
   }
 

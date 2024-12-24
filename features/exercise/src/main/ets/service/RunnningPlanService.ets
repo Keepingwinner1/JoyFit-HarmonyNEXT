@@ -59,6 +59,15 @@ export class RunningPlanService extends ExercisePlanService{
     return planContent;
   }
 
+  public async deletePlan(planID: string) {
+    // let condition = new cloudDatabase.DatabaseQuery(WorkoutPlan);
+    // condition.equalTo('PlanID',planID);
+    // const Array: WorkoutPlan[]= await this.agcDataBase.query(condition);
+    // let deleteNum = this.agcDataBase.delete(Array);
+    // this.deleteTask(planID);
+    // this.deletePlanAction(planID);
+  }
+
   public async uploadPlan(plan:runningPlan,userID:string): Promise<boolean> {
     const planContent =this.runningPlanToBean(plan,userID);
     let targetDates =this.getExecutionDates(plan.StartDate,plan.EndDate,plan.DayOfWeek);

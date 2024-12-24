@@ -28,10 +28,10 @@ export class WorkoutPlanService extends ExercisePlanService {
     return new workoutPlanBuilder();
   }
 
-  private ToBean(plan:workoutPlan,id:string){
+  private ToBean(plan:workoutPlan){
     let planContent =new WorkoutPlan();
     planContent.PlanID = plan.PlanID;
-    planContent.UserID =id;
+    planContent.UserID =plan.UserID;
     planContent.PlanName =plan.PlanName;
     planContent.CoverPicture =plan.CoverPicture;
     planContent.PlanState =plan.PlanState;
@@ -55,13 +55,13 @@ export class WorkoutPlanService extends ExercisePlanService {
     return planAction;
   }
 
-  public async uploadPlan(plan:workoutPlan,userID:string): Promise<boolean> {
-      const planContent =this.ToBean(plan,userID);
+  public async uploadPlan(plan:workoutPlan): Promise<boolean> {
+      const planContent =this.ToBean(plan);
       let targetDates =this.getExecutionDates(plan.StartDate,plan.EndDate,plan.DayOfWeek);
       let taskArr: PlanTask[] =[];
       for(let date of targetDates){
-        if(plan.PlanID != undefined)
-          taskArr.push(this.taskToBean(plan.PlanID,userID,date))
+        if(plan.PlanID != undefined && plan.UserID!=undefined)
+          taskArr.push(this.taskToBean(plan.PlanID,plan.UserID,date))
       }
       let planActionArr: PlanAction[] =[];
       if(plan.includedActions != undefined)
@@ -81,21 +81,72 @@ export class WorkoutPlanService extends ExercisePlanService {
       }
   }
 
-  public async updatePlan(plan: workoutPlan, userID: string): Promise<boolean> {
-    const planContent =this.ToBean(plan,userID);
-    try {
-      await this.agcDataBase?.upsert(planContent);
+  private async deleteTask(planID: string){
+    let condition = new cloudDatabase.DatabaseQuery(PlanTask);
+    condition.equalTo('PlanID',planID);
+    const Array: PlanTask[]= await this.agcDataBase.query(condition);
+    let deleteNum = this.agcDataBase.delete(Array);
+  }
+
+  private async deletePlanAction(planID:string){
+    let condition2 = new cloudDatabase.DatabaseQuery(PlanAction);
+    condition2.equalTo('PlanID',planID);
+    const Array2: PlanAction[]= await this.agcDataBase.query(condition2);
+    let deleteNum2 = this.agcDataBase.delete(Array2);
+  }
+
+  public async deletePlan(planID: string) {
+    let condition = new cloudDatabase.DatabaseQuery(WorkoutPlan);
+    condition.equalTo('PlanID',planID);
+    let res = await this.agcDataBase.query(condition);
+    hilog.info(1,'返回结果',JSON.stringify(res))
+    let num=await this.agcDataBase.delete(res);
+    hilog.info(1,'删除数量',num.toString());
+    //  this.agcDataBase.query(condition).then((result)=>{
+    //    this.agcDataBase.delete(result).then(()=>{
+    //      this.deleteTask(planID).then(()=>{
+    //        this.deletePlanAction(planID);
+    //      })
+    //    })
+    // });
+  }
+
+  public async updatePlan(plan: workoutPlan): Promise<boolean> {
+    //首先删除所有之前的计划记录（先查后删）
+    try{
+      if(plan.PlanID != undefined)
+        this.deletePlan(plan.PlanID).then(()=>{
+          this.uploadPlan(plan);
+        })
+      //再上传一个新的计划
       return true;
     } catch (err) {
       return false;
     }
   }
 
+  private isToday(date: Date): boolean{
+    const now = new Date();
+    // 清零时间部分
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfTomorrow = startOfToday + 24 * 60 * 60 * 1000; // 今天午夜 + 1 天
+    // 获取目标日期的时间戳
+    const targetTime = date.getTime();
+    return targetTime >= startOfToday && targetTime < startOfTomorrow;
+  }
+
   public async getTodayTasks(userID:string): Promise<WorkoutPlan[]> {
-    let currentTime = new Date();
     let condition = new cloudDatabase.DatabaseQuery(PlanTask);
-    condition.equalTo('UserID',userID).and().equalTo('ExecutedDate',currentTime).and().equalTo('TaskType','workout'); //这个判断条件可能要改
-    const TaskArray: PlanTask[]= await this.agcDataBase.query(condition);
+    condition.equalTo('UserID',userID).and(). equalTo('TaskType','workout'); //这个判断条件可能要改
+    const Array: PlanTask[]= await this.agcDataBase.query(condition);
+    //去除不属于今天的
+    const TaskArray: PlanTask[]=[];
+    for(let task of Array){
+      if(task.ExecutedDate!=undefined)
+        if(this.isToday(task.ExecutedDate))
+          TaskArray.push(task);
+    }
+    //hilog.info(1,'今日任务',JSON.stringify(TaskArray));
     let result: WorkoutPlan[]=[];
     for(let task of TaskArray) {
       let condition = new cloudDatabase.DatabaseQuery(WorkoutPlan);
