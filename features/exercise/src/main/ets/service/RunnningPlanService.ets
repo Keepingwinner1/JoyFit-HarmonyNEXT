@@ -6,6 +6,7 @@ import { PlanTask } from '../bean/PlanTask';
 import {UUIDGenerator} from 'utils'
 import { RunningRecord } from '../bean/RunningRecord';
 import { runningPlanBuilder } from '../model/runningPlanBuilder';
+import { WorkoutPlan } from '../bean/WorkoutPlan';
 
 export class RunningPlanService extends ExercisePlanService{
 
@@ -125,17 +126,17 @@ export class RunningPlanService extends ExercisePlanService{
     return planArray;
   }
 
-  public async deleteNotStartedPlan(plan:RunningPlan){
-    try{
-      let deleteNum = await this.agcDataBase.delete(plan);
-      console.info(`Succeeded in deleting plan , result: ${deleteNum}`);
-      return true;
-    }
-    catch(err){
-      console.info(`Failed in deleting a plan: JSON.stringify(err)) `);
-      return false;
-    }
-  }
+  // public async deleteNotStartedPlan(plan:RunningPlan){
+  //   try{
+  //     let deleteNum = await this.agcDataBase.delete(plan);
+  //     console.info(`Succeeded in deleting plan , result: ${deleteNum}`);
+  //     return true;
+  //   }
+  //   catch(err){
+  //     console.info(`Failed in deleting a plan: JSON.stringify(err)) `);
+  //     return false;
+  //   }
+  // }
 
   public async abandonInProgressPlan(targetPlan:RunningPlan){
     try{

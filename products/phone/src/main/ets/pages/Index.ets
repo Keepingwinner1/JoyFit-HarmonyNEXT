@@ -16,19 +16,18 @@ import {fetchDashscopeResponse,createWebSocketConnection} from "utils"
   public async finishTask(task:PlanTask): Promise<boolean> ok
   public async abandonTask(task:PlanTask): Promise<boolean> ok
   public abstract uploadPlan(plan:exercisePlan);  ok
-  public async deletePlan(planID: string);
+  public async deletePlan(planID: string);  ok  //只允许删除未开始的计划
   public abstract getTodayTasks(userID:string);  ok
-  public abstract updatePlan(plan:exercisePlan,userID:string);
-  public abstract getCompletedPlan(userID:string);
-  public abstract getNotStartedPlan(userID:string);
-  public abstract getInProgressPlan(userID:string);
-  public abstract getAbandonedPlan(userID:string);
-  public abstract deleteNotStartedPlan(plan:RunningPlan|WorkoutPlan);
+  public abstract updatePlan(plan:exercisePlan);  ok  莫名需要调用两次才成功
+  public abstract getCompletedPlan(userID:string); ok   //需要验证云端逻辑
+  public abstract getNotStartedPlan(userID:string);  ok
+  public abstract getInProgressPlan(userID:string);  ok  //需要验证云端逻辑
+  public abstract getAbandonedPlan(userID:string);  ok
   public abstract abandonInProgressPlan(plan:RunningPlan|WorkoutPlan);
   public abstract uploadFeelings(record:RunningRecord|WorkoutRecord);
   public abstract getFeelingsByPlan(userID:string,planID:string);
   public abstract getRecords(userID:string,planID:string);
-  public abstract createPlanBuilder():runningPlanBuilder|workoutPlanBuilder;
+  public abstract createPlanBuilder():runningPlanBuilder|workoutPlanBuilder; ok
  * */
 
 
@@ -40,6 +39,7 @@ import {fetchDashscopeResponse,createWebSocketConnection} from "utils"
 @Component
 struct Index {
   @State todayTasks: WorkoutPlan[] = [];
+
   @State todayTasksString: string = '';
   @State userAchievement: Achievement[] = [];
   @State userAchievementString: string = '';
@@ -51,6 +51,11 @@ struct Index {
   @State ActionString: string = '';
   @State Time: number = 0;
   @State Answer: string = '';
+
+
+  @State NotStartedPlan: WorkoutPlan[] =[];
+  @State NotStartedPlanString: string ='';
+
   ex: WorkoutPlanService = WorkoutPlanService.getInstance();
   exByCYB: UserAchievementService = UserAchievementService.getInstance();
   ex1: UserExerciseStatsService = UserExerciseStatsService.getInstance();
@@ -62,72 +67,86 @@ struct Index {
     Column() {
       Button('上传计划')
         .onClick(async () => {
-          const response =  await fetchDashscopeResponse("我这个健身动作是杠零推胸，请你提供给我关于这个动作的动作指导");
-          this.Answer=response;
+          const response = await fetchDashscopeResponse("我这个健身动作是杠零推胸，请你提供给我关于这个动作的动作指导");
+          this.Answer = response;
         })
       Text(this.Answer);
 
       Button('查询所有胸部动作')
         .onClick(async () => {
-         this.ex4.getAllAction().then((result) => {
-                  if(result) {
-                    hilog.info(1, "查询腹部", "查询成功");
-                    this.Action = result ;
-                    this.ActionString=JSON.stringify(this.Action);
-                  }
-                  else
-                    hilog.error(1,'查询腹部','查询失败');
-                }
-                ).catch((error: BusinessError) => {
-                  hilog.error(2,"查询失败",error.message);
-                });
+          this.ex4.getAllAction().then((result) => {
+            if (result) {
+              hilog.info(1, "查询腹部", "查询成功");
+              this.Action = result;
+              this.ActionString = JSON.stringify(this.Action);
+            } else
+              hilog.error(1, '查询腹部', '查询失败');
+          }
+          ).catch((error: BusinessError) => {
+            hilog.error(2, "查询失败", error.message);
+          });
         })
       Text(this.ActionString);
+
 
       Button('查询用户动作')
         .onClick(async () => {
           this.ex4.getMyAction("b11").then((result) => {
-            if(result) {
+            if (result) {
               hilog.info(1, "查询用户动作", "查询成功");
-              this.Action = result ;
-              this.ActionString=JSON.stringify(this.Action);
-            }
-            else
-              hilog.error(1,'查询用户动作','查询失败');
+              this.Action = result;
+              this.ActionString = JSON.stringify(this.Action);
+            } else
+              hilog.error(1, '查询用户动作', '查询失败');
+          })
+        })
+
+
+      Button('删除计划')
+        .onClick(() => {
+          this.ex.deletePlan('224,216,128');
+        })
+
+
+      Button('获取今日任务')//会返回所有今天的任务，未做已完成、已放弃、待完成区分，可以利用State字段实现
+        .onClick(() => {
+          this.ex.getTodayTasks('1').then((result: WorkoutPlan[]) => {
+            this.todayTasks = result; //可以直接使用这个变量进行后续展示处理
+            this.todayTasksString = JSON.stringify(result);
+
           }
           ).catch((error: BusinessError) => {
-            hilog.error(2,"查询失败",error.message);
+            hilog.error(2, "查询失败", error.message);
           });
         })
       Text(this.ActionString);
 
       Button('新增用户动作')
         .onClick(async () => {
-          let action =ActionFactory.createArmsAction();
+          let action = ActionFactory.createArmsAction();
           let actioninfo: actionInfo = new actionInfo()
-          actioninfo.ActionName ='飞鸟'; //所选动作填入
+          actioninfo.ActionName = '飞鸟'; //所选动作填入
           actioninfo.ActionID = '444'; //所选动作填入
           actioninfo.Sets = 4;
-          actioninfo.SingleSetNum =5 ;
-          action.basicInfo=actioninfo;
-          this.ex4.addNewAction(action,"User1").then((result) => {
-            if(result) {
+          actioninfo.SingleSetNum = 5;
+          action.basicInfo = actioninfo;
+          this.ex4.addNewAction(action, "User1").then((result) => {
+            if (result) {
               hilog.info(1, "新增用户动作", "增加成功");
-              this.Action = result ;
-              this.ActionString=JSON.stringify(this.Action);
-            }
-            else
-              hilog.error(1,'新增用户动作','增加失败');
+              this.Action = result;
+              this.ActionString = JSON.stringify(this.Action);
+            } else
+              hilog.error(1, '新增用户动作', '增加失败');
           }
           ).catch((error: BusinessError) => {
-            hilog.error(2,"增加失败",error.message);
+            hilog.error(2, "增加失败", error.message);
           });
         })
 
 
       Button('上传计划')
         .onClick(async () => {
-          await createWebSocketConnection("1231c6qq","1. 传输方式不同\n" +
+          await createWebSocketConnection("1231c6qq", "1. 传输方式不同\n" +
             "\n" +
             "流式传输是一种连续的传输方式，数据流在传输过程中是分片逐个传输的。而非流式传输则是将整个数据文件一次性传输的方式。\n" +
             "\n" +
@@ -140,11 +159,145 @@ struct Index {
             "流式传输可以较快地发现和处理错误，如果某个数据块不存在或者传输错误，只需要重传该块，不会影响其它部分。而非流式传输则需要重新传输整个数据文件。");
         })
 
+
+      //this.text = UUIDGenerator.getID();
+
+      Button('获取未开始计划')//其余三个同理
+        .onClick(() => {
+          this.ex.getNotStartedPlan('1').then((result: WorkoutPlan[]) => {
+            this.NotStartedPlan = result; //可以直接使用这个变量进行后续展示处理
+            this.NotStartedPlanString = JSON.stringify(result);
+          }
+          )
+        })
+      Text(this.NotStartedPlanString)
     }
     .justifyContent(FlexAlign.Center)
     .height('100%')
     .width('100%')
   }
+
+
+
+
+
+  getWorkoutPlan(){
+    let test_workoutBuilder= this.ex.createPlanBuilder();
+    //初始化动作
+    let actioninfo: actionInfo = new actionInfo();
+    actioninfo.ActionName ='动作3'; //所选动作填入
+    actioninfo.ActionID = '888'; //所选动作填入
+    actioninfo.Sets = 3;
+    actioninfo.SingleSetNum =5 ;
+
+    let actions: actionInfo[] = [];//创建空数组
+    actions.push(actioninfo);//放入确定好的动作
+    let actioninfo2: actionInfo = new actionInfo(); //代表加入另一个新动作，必须要new一个新对象，不可以复用之前的对象
+    actioninfo2.ActionName ='动作4'; //所选动作填入
+    actioninfo2.ActionID = '444'; //所选动作填入
+    actioninfo2.Sets = 4;
+    actioninfo2.SingleSetNum =5 ;
+    actions.push(actioninfo2);
+
+    let startDate = new Date();
+    let endDate = new Date();
+    endDate.setDate(startDate.getDate()+1);
+    test_workoutBuilder
+      .setPlanID('221,23,112') //以下两项为固定设置
+      .setPlanState('NotStarted')
+      .setUserID('1') //根据真实值传入
+      .setPlanName('测试健身计划')  //以下方法当用户修改时可以再次调用传入新值
+      .setCoverPicture('url:test')
+      .setStartDate(startDate)
+      .setEndDate(endDate)
+      .setDayOfWeek("2")
+      .setDescription("这是更新后的健身计划");
+    test_workoutBuilder
+      .setRestTimeBetweenSets(2)//下面属性设置只能直接跟在test_workoutBuilder后面调用
+      .setRestTimeBetweenExercises(3)
+      .setTag("健身#力量#有氧");
+    test_workoutBuilder
+      .addActions(actions) ;  //在提交按钮回调中进行以下函数的调用；（即传入的动作需要为最终确定的不可修再改的值）
+    test_workoutBuilder
+      .setTotalTime(this.getTotalTime())  //需要实现一个方法来计算总时间
+      .build();//调用build方法返回完整对象
+    return new workoutPlan(test_workoutBuilder);
+  }
+
+  updatePlan(){
+    let plan =this.getWorkoutPlan();
+    if(plan.PlanID!=undefined)
+      this.ex.deletePlan(plan.PlanID)
+    this.ex.uploadPlan(plan);
+  }
+
+  uploadPlan(){
+    let test_workoutBuilder= this.ex.createPlanBuilder();
+    //初始化动作
+    let actioninfo: actionInfo = new actionInfo();
+    actioninfo.ActionName ='动作1'; //所选动作填入
+    actioninfo.ActionID = '111'; //所选动作填入
+    actioninfo.Sets = 3;
+    actioninfo.SingleSetNum =5 ;
+
+    let actions: actionInfo[] = [];//创建空数组
+    actions.push(actioninfo);//放入确定好的动作
+    let actioninfo2: actionInfo = new actionInfo(); //代表加入另一个新动作，必须要new一个新对象，不可以复用之前的对象
+    actioninfo2.ActionName ='动作2'; //所选动作填入
+    actioninfo2.ActionID = '222'; //所选动作填入
+    actioninfo2.Sets = 4;
+    actioninfo2.SingleSetNum =5 ;
+    actions.push(actioninfo2);
+
+    let startDate = new Date();
+    let endDate = new Date();
+    endDate.setDate(startDate.getDate()+1);
+
+    test_workoutBuilder
+      // .setPlanID(UUIDGenerator.getID()) //以下两项为固定设置
+      // .setPlanState('NotStarted')
+      .setUserID('1') //根据真实值传入
+      .setPlanName('测试健身计划')  //以下方法当用户修改时可以再次调用传入新值
+      .setCoverPicture('url:test')
+      .setStartDate(startDate)
+      .setEndDate(endDate)
+      .setDayOfWeek("1#2#3")
+      .setDescription("这是一个666测试健身计划");
+    test_workoutBuilder
+      .setRestTimeBetweenSets(2)//下面属性设置只能直接跟在test_workoutBuilder后面调用
+      .setRestTimeBetweenExercises(3)
+      .setTag("健身#力量");
+    test_workoutBuilder
+      .addActions(actions) ;  //在提交按钮回调中进行以下函数的调用；（即传入的动作需要为最终确定的不可修再改的值）
+    test_workoutBuilder
+      .setTotalTime(this.getTotalTime())  //需要实现一个方法来计算总时间
+      .build();//调用build方法返回完整对象
+    let test_workoutPlan = new workoutPlan(test_workoutBuilder);
+    this.ex.uploadPlan(test_workoutPlan).then((result) => {
+      if(result)
+        hilog.info(1,"上传","上传计划成功");
+      else
+        hilog.error(1,'上传','上传错误');
+    }
+    ).catch((error: BusinessError) => {
+      hilog.error(2,"上传错误",error.message);
+    });
+  }
+
+  getTotalTime(): number {
+    //遍历所有动作计算总耗时
+    // let time = 0;
+    // for(let action of this.includedActions){
+    //   let time1 = action.TimeOfOne * action.basicInfo.SingleSetNum;
+    //   let time2 = (action.basicInfo.Sets-1)* plan.RestTimeBetweenSets;
+    //   time += time1;
+    //   time += time2;
+    //   time+= plan.RestTimeBetweenExercises;
+    // }
+    return 100;
+  }
+
+
 }
 
 //   updatePlan(){
