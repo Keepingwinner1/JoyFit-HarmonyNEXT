@@ -93,8 +93,8 @@ export class action {
       basicInfo.ActionID =input1.ActionID;
       basicInfo.Sets= input2.Sets;
       basicInfo.SingleSetNum = input2.SingleSetNum;
-      if(input1.IntroductionVoice!=undefined && input1.IntroductionVideo!=undefined && input1.Description!= undefined && input1.TimeOfOne!=undefined && input1.MainTrainingPart!=undefined&& input1.IsUserDefined && input1.Carlories&&input1.Note!=undefined)
-        return new action(basicInfo,input1.IntroductionVideo,input1.IntroductionVoice,input1.Description,input1.TimeOfOne,input1.MainTrainingPart,input1.IsUserDefined,input1.Carlories,input1.Note);
+      if(input1.IntroductionVoice!=undefined && input1.IntroductionVideo!=undefined && input1.Description!= undefined && input1.TimeOfOne!=undefined && input1.MainTrainingPart!=undefined&& input1.IsUserDefined && input1.Calories&&input1.Note!=undefined)
+        return new action(basicInfo,input1.IntroductionVideo,input1.IntroductionVoice,input1.Description,input1.TimeOfOne,input1.MainTrainingPart,input1.IsUserDefined,input1.Calories,input1.Note);
       else
         return null;
     }

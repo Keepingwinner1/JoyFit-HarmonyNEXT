@@ -1,6 +1,7 @@
 import {action} from '../model/action';
 import {Action} from '../bean/Action';
 import {UserAction} from '../bean/UserAction';
+import {PlanAction} from '../bean/PlanAction';
 import { cloudFunction } from '@kit.CloudFoundationKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 
@@ -12,6 +13,21 @@ interface RetofResult {
 interface ResultofActionSearch {
   ret: RetofResult;
   result: Action[];
+}
+
+interface ResultofUserActionSearch {
+  ret: RetofResult;
+  result: UserAction[];
+}
+
+interface ResultofPlanActionSearch {
+  ret: RetofResult;
+  result: PlanAction[];
+}
+
+interface ResultofUserSingleActionSearch {
+  ret: RetofResult;
+  result: Action;
 }
 
 export class ActionRepository {
@@ -39,7 +55,7 @@ export class ActionRepository {
     action.TimeOfOne=newAction.TimeOfOne;
     action.MainTrainingPart=newAction.MainTrainingPart;
     action.IsUserDefined=true;
-    action.Carlories=newAction.Calories;
+    action.Calories=newAction.Calories;
 
     return action;
   }
@@ -68,14 +84,16 @@ export class ActionRepository {
             console.error(`Failed to call the function, Code: ${err.code}, message: ${err.message}`);
             reject(false);  // Reject with false or any relevant error information
           } else {
-            console.info(`Succeeded in calling the function, result: ${JSON.stringify(data.result)}`);
+            console.info(`Succeeded in calling the function, result: ${JSON.stringify(data.result)}`+data.result.toString());
+            console.info(data.result.toString());
             resolve(data);  // Resolve with the data from the cloud function
           }
         });
       });
 
       // 处理查询结果并返回
-      const cfReturn = data as ResultofActionSearch;
+      const cfReturn = data.result as ResultofActionSearch;
+      console.info(cfReturn.result.toString());
       return cfReturn.result;
 
     } catch (error) {
@@ -108,7 +126,7 @@ export class ActionRepository {
       });
 
       // 处理查询结果并返回
-      const cfReturn = data as ResultofActionSearch;
+      const cfReturn = data.result as ResultofActionSearch;
       return cfReturn.result;
 
     } catch (error) {
@@ -142,7 +160,7 @@ export class ActionRepository {
       });
 
       // 处理查询结果并返回
-      const cfReturn = data as ResultofActionSearch;
+      const cfReturn = data.result as ResultofActionSearch;
       return cfReturn.result;
 
     } catch (error) {
@@ -178,7 +196,7 @@ export class ActionRepository {
       });
 
       // 处理查询结果并返回
-      const cfReturn = data as ResultofActionSearch;
+      const cfReturn = data.result as ResultofActionSearch;
       return cfReturn.result;
 
     } catch (error) {
@@ -190,7 +208,7 @@ export class ActionRepository {
 
 
   //获取所有的腹部动作
-  async getAllAbdomenActions(){
+  async getAllAbdomenActions():Promise<Action[] | boolean>{
     try {
       const data: cloudFunction.FunctionResult = await new Promise((resolve, reject) => {
         cloudFunction.call({
@@ -212,7 +230,7 @@ export class ActionRepository {
       });
 
       // 处理查询结果并返回
-      const cfReturn = data as ResultofActionSearch;
+      const cfReturn = data.result as ResultofActionSearch;
       return cfReturn.result;
 
     } catch (error) {
@@ -224,8 +242,9 @@ export class ActionRepository {
   }
 
   //获取所有的肩部动作
-  async getAllShouldersActions(){
+  async getAllShouldersActions(): Promise<Action[] |boolean> {
     try {
+      // 直接返回 cloudFunction 的结果
       const data: cloudFunction.FunctionResult = await new Promise((resolve, reject) => {
         cloudFunction.call({
           name: 'action-bycyb-cloud-function',
@@ -237,84 +256,113 @@ export class ActionRepository {
         }, (err: BusinessError, data: cloudFunction.FunctionResult) => {
           if (err) {
             console.error(`Failed to call the function, Code: ${err.code}, message: ${err.message}`);
-            reject(false);  // Reject with false or any relevant error information
+            reject(false);  // Reject with false if there's an error
           } else {
-            console.info(`Succeeded in calling the function, result: ${JSON.stringify(data.result)}`);
-            resolve(data);  // Resolve with the data from the cloud function
+            resolve(data);  // Resolve with the cloud function result
           }
         });
       });
 
-      // 处理查询结果并返回
-      const cfReturn = data as ResultofActionSearch;
-      return cfReturn.result;
+      // 处理查询结果并返回 Action 数组
+      const cfReturn = data.result as ResultofActionSearch;
+
+      // 如果查询结果中有 Action 数据
+      if (cfReturn.result && Array.isArray(cfReturn.result)) {
+        console.info(`Received Actions: ${JSON.stringify(cfReturn.result)}`);
+        return cfReturn.result;  // 返回 Action 数组
+      } else {
+        console.error("No valid action results found.");
+        return cfReturn.result;  // 返回 false 如果没有有效的数据
+      }
 
     } catch (error) {
       // 捕获错误并返回 false
       console.error('Error occurred:', error);
       return false;
     }
-
   }
 
+
   //addNewAction(newAction: Action): boolean
-  async addNewAction(newAction: action,uid:string):Promise<boolean>{
+  async addNewAction(newAction: action, uid: string): Promise<boolean> {
 
-    let issuccess=true;
-    //上传音频和视频
-
-    //转化为数据库格式
+    // 转化为数据库格式
     let waittoadd = this.ToBean(newAction);
+
     if (waittoadd.ActionID != null) {
       let useraction = this.ToBeanUserAction(uid, waittoadd.ActionID);
 
-      cloudFunction.call({
-        name: 'action-bycyb-cloud-function',
-        version: '$latest',
-        timeout: 10 * 1000,
-        data: {
-          operation: 'upsertAction',
-          records: waittoadd
-        }
-      }, (err: BusinessError, data: cloudFunction.FunctionResult) => {
-        if (err) {
-          console.error(`Failed to call the function, Code: ${err.code}, message: ${err.message}`);
-          issuccess=false;
-        }
-        console.info(`Succeeded in calling the function, result: ${JSON.stringify(data.result)}`);
+      // 使用Promise包装异步操作
+      try {
+        // 第一次异步调用
+        const upsertActionResult = await new Promise<boolean>((resolve, reject) => {
+          cloudFunction.call({
+            name: 'action-bycyb-cloud-function',
+            version: '$latest',
+            timeout: 10 * 1000,
+            data: {
+              operation: 'upsertAction',
+              records: waittoadd
+            }
+          }, (err: BusinessError, data: cloudFunction.FunctionResult) => {
+            if (err) {
+              console.error(`Failed to call the function, Code: ${err.code}, message: ${err.message}`);
+              reject(false);  // 错误时reject
+            } else {
+              console.info(`Succeeded in calling the function, result: ${JSON.stringify(data.result)}`);
+              resolve(true);  // 成功时resolve
+            }
+          });
+        });
 
-      })
+        // 如果第一个调用失败，直接返回false
+        if (!upsertActionResult) {
+          return false;
+        }
 
-      if(!issuccess){
+        // 第二次异步调用
+        const upsertUserActionResult = await new Promise<boolean>((resolve, reject) => {
+          cloudFunction.call({
+            name: 'action-bycyb-cloud-function',
+            version: '$latest',
+            timeout: 10 * 1000,
+            data: {
+              operation: 'upsertUserAction',
+              records: useraction
+            }
+          }, (err: BusinessError, data: cloudFunction.FunctionResult) => {
+            if (err) {
+              console.error(`Failed to call the function, Code: ${err.code}, message: ${err.message}`);
+              reject(false);  // 错误时reject
+            } else {
+              console.info(`Succeeded in calling the function, result: ${JSON.stringify(data.result)}`);
+              resolve(true);  // 成功时resolve
+            }
+          });
+        });
+
+        // 如果第二个调用失败，直接返回false
+        if (!upsertUserActionResult) {
+          return false;
+        }
+
+        // 如果两个调用都成功，返回true
+        return true;
+
+      } catch (error) {
+        // 捕获到任何错误时，返回false
+        console.error("Error in addNewAction:", error);
         return false;
       }
-      else {
-        cloudFunction.call({
-          name: 'action-bycyb-cloud-function',
-          version: '$latest',
-          timeout: 10 * 1000,
-          data: {
-            operation: 'upsertUserAction',
-            records: useraction
-          }
-        }, (err: BusinessError, data: cloudFunction.FunctionResult) => {
-          if (err) {
-            console.error(`Failed to call the function, Code: ${err.code}, message: ${err.message}`);
-            issuccess = false;
-
-          }
-          console.info(`Succeeded in calling the function, result: ${JSON.stringify(data.result)}`);
-
-        })
-        return issuccess;
-      }
-    }
-    else{
+    } else {
       return false;
     }
-
   }
 
+
+
+
+  //deleteMyAction
   // deleteMyAction(actionID: Integer): boolean
   async deleteMyAction(oldAction: action,uid:string):Promise<boolean>{
 
@@ -335,7 +383,7 @@ export class ActionRepository {
       timeout: 10 * 1000,
       data: {
         operation: 'relationActionWithPlan',
-        records: {actionID}
+        records: actionID
       }
     }, (err: BusinessError, data: cloudFunction.FunctionResult) => {
       if (err) {
@@ -343,7 +391,8 @@ export class ActionRepository {
         issuccess=false;
       }
       console.info(`Succeeded in calling the function, result: ${JSON.stringify(data.result)}`);
-      if (!data.result ||data.result === "") {
+      const resultofRelation=data.result as ResultofPlanActionSearch;
+      if (resultofRelation.result.length==0) {
         // 如果没有返回结果，说明没有计划与目标 Action 关联
         relationActionwithPlan = true;
       } else {
@@ -369,7 +418,7 @@ export class ActionRepository {
       timeout: 10 * 1000,
       data: {
         operation: 'deleteAction',
-        records: {actionID}
+        records: actionID
       }
     }, (err: BusinessError, data: cloudFunction.FunctionResult) => {
       if (err) {
@@ -384,6 +433,7 @@ export class ActionRepository {
     if(!issuccess){
       return false;
     }
+
 
     //调用云函数删除UserAction表中的关系
     cloudFunction.call({
@@ -407,42 +457,6 @@ export class ActionRepository {
       return false;
     }
 
-    //删除PlanAction表中的相关单元行
-    cloudFunction.call({
-      name: 'action-bycyb-cloud-function',
-      version: '$latest',
-      timeout: 10 * 1000,
-      data: {
-        operation: 'deletePlanAction',
-        records: {"ActionID":actionID}
-      }
-    }, (err: BusinessError, data: cloudFunction.FunctionResult) => {
-      if (err) {
-        console.error(`Failed to call the function, Code: ${err.code}, message: ${err.message}`);
-        issuccess=false;
-      }
-      console.info(`Succeeded in calling the function, result: ${JSON.stringify(data.result)}`);
-    })
-
-    //删除RecordAction表中的相关单元行
-    cloudFunction.call({
-      name: 'action-bycyb-cloud-function',
-      version: '$latest',
-      timeout: 10 * 1000,
-      data: {
-        operation: 'deleteRecordAction',
-        records: {"ActionID":actionID}
-      }
-    }, (err: BusinessError, data: cloudFunction.FunctionResult) => {
-      if (err) {
-        console.error(`Failed to call the function, Code: ${err.code}, message: ${err.message}`);
-        issuccess=false;
-      }
-      console.info(`Succeeded in calling the function, result: ${JSON.stringify(data.result)}`);
-    })
-
-
-
     return issuccess;
   }
 
@@ -458,7 +472,7 @@ export class ActionRepository {
           timeout: 10 * 1000,
           data: {
             operation: 'queryActionByUserID',
-            records:uid
+            records: uid
           }
         }, (err: BusinessError, data: cloudFunction.FunctionResult) => {
           if (err) {
@@ -471,41 +485,67 @@ export class ActionRepository {
         });
       });
 
-      // 获取用户的 ActionID 列表
-      const userActions = data.result as UserAction[];
+      // 获取用户的 ActionID 列表并检查数据有效性
+      const cfReturn = data.result as ResultofUserActionSearch;
+      const userActions= cfReturn.result;
+      if (!userActions || userActions.length == 0) {
+        console.error('No actions found for the user.');
+        return false;  // 如果没有找到用户的 Action，返回 false
+      }
+
+
       const actionIDs = userActions.map(item => item.ActionID);
 
       // 使用 Promise.all 并行调用 queryActionByActionID 获取每个 Action
-      const actions = await Promise.all(actionIDs.map((actionID) => {
-        return new Promise<Action>((resolve, reject) => {
-          cloudFunction.call({
-            name: 'action-bycyb-cloud-function',
-            version: '$latest',
-            timeout: 10 * 1000,
-            data: {
-              operation: 'queryActionByActionID',
-              records: { "ActionID": actionID }
-            }
-          }, (err: BusinessError, data: cloudFunction.FunctionResult) => {
-            if (err) {
-              console.error(`Failed to call the function for ActionID: ${actionID}, Code: ${err.code}, message: ${err.message}`);
-              reject(false);  // 调用失败时返回 false
-            } else {
-              console.info(`Succeeded in calling the function for ActionID: ${actionID}, result: ${JSON.stringify(data.result)}`);
-              resolve(data.result as Action);  // 调用成功时返回单个 Action
-            }
+      const actions = await Promise.all(actionIDs.map(async (actionID) => {
+        try {
+          console.info("傻逼华为2");
+          const result = await new Promise<Action | null>((resolve, reject) => {
+            cloudFunction.call({
+              name: 'action-bycyb-cloud-function',
+              version: '$latest',
+              timeout: 10 * 1000,
+              data: {
+                operation: 'queryActionByActionID',
+                records: actionID
+              }
+            }, (err: BusinessError, data: cloudFunction.FunctionResult) => {
+              if (err) {
+                console.error(`Failed to call the function for ActionID: ${actionID}, Code: ${err.code}, message: ${err.message}`);
+                reject(null);  // 如果失败，返回 null
+              } else {
+                console.info(`Succeeded in calling the function for ActionID: ${actionID}, result: ${JSON.stringify(data.result)}`);
+                const resultofActionSearch=data.result as ResultofUserSingleActionSearch;
+                resolve(resultofActionSearch.result);  // 成功时返回 Action 对象
+              }
+            });
           });
-        });
+
+          return result ;  // 返回获取到的单个 Action 或 null
+
+        } catch (error) {
+          console.error(`Error fetching action for ActionID: ${actionID}:`, error);
+          return null;  // 如果某个 Action 查询失败，返回 null
+        }
       }));
 
+      // 过滤掉为 null 的结果
+      const validActions = actions.filter(action => action !== null) as Action[];
+
+      if (validActions.length === 0) {
+        console.error('No valid actions found.');
+        return false;  // 如果没有有效的 Action，返回 false
+      }
+
       // 返回所有的 Action 数组
-      return actions;
+      return validActions;
 
     } catch (error) {
       console.error('Error occurred:', error);
       return false;  // 捕获错误时返回 false
     }
   }
+
 
   //getAllAction()查找所有动作
   async getAllAction():Promise<Action[] | boolean>{
@@ -530,7 +570,7 @@ export class ActionRepository {
       });
 
       // 处理查询结果并返回
-      const cfReturn = data as ResultofActionSearch;
+      const cfReturn = data.result as ResultofActionSearch;
       return cfReturn.result;
 
     } catch (error) {

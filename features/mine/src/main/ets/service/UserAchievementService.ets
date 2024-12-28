@@ -33,13 +33,12 @@ export class UserAchievementService {
     userach.AchievementID=newAchievement.getAchievementID();
     userach.UserID=uid;
     userach.AchieveTime=new Date();
-
     return userach;
 
   }
 
   // 通过 achievementID 查找荣誉及其相关信息
-  async findAchievementByID(achievementID: string):Promise<Achievement | null> {
+  async findAchievementByID(achievementID: string):Promise<Achievement> {
     try {
       // 创建查询条件，查找与 AchievementID 匹配的荣誉
       let condition = new cloudDatabase.DatabaseQuery(Achievement);
@@ -51,12 +50,11 @@ export class UserAchievementService {
       // 检查返回的结果
       if (result.length === 0) {
         console.info(`No achievement found with ID: ${achievementID}`);
-        return null;  // 如果没有找到，返回 null 或者适当的提示信息
       } else {
         // 如果找到相关荣誉，返回第一条记录
         console.info(`Found achievement: ${JSON.stringify(result[0])}`);
-        return result[0];  // 假设每个 AchievementID 唯一，返回找到的第一个记录
       }
+      return result[0];
     } catch (err) {
       // 错误处理
       console.error(`Failed to find achievement. Code: ${err.code}, Message: ${err.message}`);
@@ -88,7 +86,7 @@ export class UserAchievementService {
       );
 
       // 过滤掉 null 或 undefined 的荣誉（如果有）
-      achievementDetails = achievementResults.filter(item => item !== null) as Achievement[];
+      achievementDetails = achievementResults.filter(item => item != null) as Achievement[];
 
       // 返回包含荣誉详细信息的数组
       return achievementDetails;
@@ -101,19 +99,17 @@ export class UserAchievementService {
   //用户获得荣誉
   async addAchievement(Achievement:achievement,uid:string){
 
-    let newAchievement=this.AchievementtoBean(Achievement);
+
     let newUserAchievement=this.UserAchievementtoBean(Achievement,uid);
 
     try {
 
-      // 调用 upsert 方法
-      let num1 = await this.agcDataBase.upsert([newAchievement]);
-      let num2 = await this.agcDataBase.upsert([newUserAchievement]);
+      let num = await this.agcDataBase.upsert([newUserAchievement]);
 
 
       // 根据返回结果判断成功或失败
-      if (num1 > 0 && num2 > 0) {
-        console.info(`Successfully updated/inserted ${num1+num2} records.`);
+      if ( num > 0) {
+        console.info(`Successfully updated/inserted ${num} records.`);
         return true;
       } else {
         console.warn('No records were updated or inserted.');

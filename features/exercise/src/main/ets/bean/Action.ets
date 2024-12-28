@@ -14,7 +14,7 @@ class Action extends cloudDatabase.DatabaseObject {
   public TimeOfOne: number | undefined;  // Integer类型
   public MainTrainingPart: string | undefined ;  // String类型
   public IsUserDefined: boolean | undefined;  // Boolean类型
-  public Carlories: number|undefined;
+  public Calories: number|undefined;
   public Note: string | undefined;
 
 }

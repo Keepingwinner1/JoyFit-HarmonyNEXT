@@ -8,7 +8,7 @@ export class ExerciseStates extends cloudDatabase.DatabaseObject{
   public TimeStamp : number | undefined;
   public TotalSteps : number| undefined;
   public TotalExerciseTime: number | undefined;
-  public TotalCalories: number | undefined;
+  public TotalCaloriesBurned: number | undefined;
 
 
 }

@@ -2,6 +2,7 @@ import { cloudDatabase } from '@kit.CloudFoundationKit';
 import { BodyHeight } from '../bean/BodyHeight';
 import { WeightData } from '../bean/WeightData';
 import {BodyFatData} from '../bean/BodyFatData';
+import {DateConverToNum} from "utils";
 
 export class BodyDataTrackerService {
   private static instance: BodyDataTrackerService | null = null;
@@ -39,6 +40,7 @@ export class BodyDataTrackerService {
 
          // 按 WeightRecordTime 降序排序，确保最新的记录排在前面
          condition.orderByDesc('WeightRecordTime');
+
 
          // 执行查询
          let weightDataArray = await this.agcDataBase.query(condition);
@@ -78,7 +80,7 @@ export class BodyDataTrackerService {
         return null;  // 如果没有找到，返回 null
       } else {
 
-        console.info(`Found latest weight data: ${JSON.stringify(HeightData[0])}`);
+        console.info(`Found latest height data: ${JSON.stringify(HeightData[0].Height)}`);
         return HeightData[0];
       }
     } catch (err) {
@@ -143,7 +145,7 @@ export class BodyDataTrackerService {
       userweight.Weight=weight;
       userweight.BMI=newBMI;
       let currentDate = new Date();
-      userweight.WeightRecordTime=currentDate.getTime();
+      userweight.WeightRecordTime=DateConverToNum.convertDateToInteger(currentDate);
 
       // 调用 upsert 方法
       let num = await this.agcDataBase.upsert([userweight]);
@@ -174,8 +176,7 @@ export class BodyDataTrackerService {
       userweight.UserID=uid;
       userweight.Weight=weight;
       let currentDate = new Date();
-      userweight.WeightRecordTime=currentDate.getTime();
-
+      userweight.WeightRecordTime=DateConverToNum.convertDateToInteger(currentDate);
       // 获取该用户的身高数据
       let HeightData = await this.getUserHeight(uid);
       if(!HeightData){
@@ -224,7 +225,7 @@ export class BodyDataTrackerService {
       userBodyFat.UserID=uid;
       userBodyFat.BodyFatRate=BodyFat;
       let currentDate = new Date();
-      userBodyFat.BodyFatRecordTime=currentDate.getTime();
+      userBodyFat.BodyFatRecordTime=DateConverToNum.convertDateToInteger(currentDate);
       // 调用 upsert 方法
       let num = await this.agcDataBase.upsert([userBodyFat]);
 
