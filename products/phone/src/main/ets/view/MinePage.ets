@@ -72,7 +72,7 @@ export default struct MinePage {
 
         Row() {
           Column() {
-            Text('BMI指数评分')
+            Text('BMI指数')
               .fontSize(16)
               .margin({top: 10})
             Gauge({ value: 21, min: 10, max: 32 }) {
