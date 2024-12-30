@@ -4,7 +4,7 @@ import { workoutPlan } from "exercise/src/main/ets/model/workoutPlan"
 import { WorkoutPlanService } from "exercise/src/main/ets/service/WorkoutPlanService"
 import { WorkoutPlan } from "exercise/src/main/ets/bean/WorkoutPlan"
 
-// planStatus: NotStarted Abandoned InProgress Completed
+// PlanState: NotStarted Abandoned InProgress Completed
 
 @ComponentV2
 export default struct PlanPage {

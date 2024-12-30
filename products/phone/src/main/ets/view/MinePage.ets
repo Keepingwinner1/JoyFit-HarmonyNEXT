@@ -37,6 +37,7 @@ export default struct MinePage {
           .fontSize(20)
           .fontWeight(FontWeight.Bold)
 
+        //成就
         Column() {
           Text('我的成就')
             .fontSize(20)
@@ -74,7 +75,7 @@ export default struct MinePage {
             Text('BMI指数评分')
               .fontSize(16)
               .margin({top: 10})
-            Gauge({ value: 86, min: 1, max: 100 }) {
+            Gauge({ value: 21, min: 10, max: 32 }) {
               Column() {
                 Text('86')
                   .maxFontSize("80sp")
@@ -91,9 +92,14 @@ export default struct MinePage {
             }
             .startAngle(225)
             .endAngle(135)
+            // .colors(new LinearGradient([{ color: "#e84026", offset: 0 },
+            //   { color: "#f7ce00", offset: 0.6 },
+            //   { color: "#64bb5c", offset: 1 }]))
             .colors(new LinearGradient([{ color: "#e84026", offset: 0 },
-              { color: "#f7ce00", offset: 0.6 },
-              { color: "#64bb5c", offset: 1 }]))
+              { color: "#f7ce00", offset: 0.2 },
+              { color: "#64bb5c", offset: 0.5 },
+              { color: "#f7ce00", offset: 0.8 },
+              { color: "#e84026", offset: 1 }]))
             .width('100%')
             .height('100%')
             .strokeWidth(18)
@@ -128,9 +134,10 @@ export default struct MinePage {
             .fontSize(20)
             .fontWeight(FontWeight.Bold)
           Text('成就名')
+            .margin({top: 10})
           Image($r(this.presentBadge.imageUrl))
             .height(130)
-            .margin({top: 30})
+            .margin({top: 15})
             .scale({
               x: this.maskImgX,
               y: this.maskImgY
@@ -140,18 +147,34 @@ export default struct MinePage {
             })
           Text(this.presentBadge.description)
             .margin({top: 20})
+          Text('获得时间：2024年12月16日')
+            .fontSize(14)
+            .fontColor('#9e000000')
+            .margin({top: 10})
         }
         .backgroundColor(Color.White)
         .height(300)
         .width(250)
         .borderRadius(20)
         .padding(20)
+        .margin({top: 150})
+
+        Row() {
+          Text('分享')
+          Image($r('app.media.ic_arrowshape_turn_up_right_fill')).height(30)
+        }
+        .backgroundColor(Color.White)
+        .height(50)
+        .width(100)
+        .borderRadius(25)
+        .justifyContent(FlexAlign.Center)
+        .margin({top: 100})
       }
       .width('100%')
       .height('100%')
       .backgroundColor('#ce000000')
       .zIndex(this.isPresentBadge ? 5 : -1)
-      .justifyContent(FlexAlign.Center)
+      //.justifyContent(FlexAlign.Center)
       .opacity(this.maskOpacity)
       .animation({
         duration: 300

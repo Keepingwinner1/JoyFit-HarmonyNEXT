@@ -4,6 +4,7 @@ import { router } from '@kit.ArkUI'
 @ComponentV2
 struct AddRecordPage {
   @Local txt: string = ''
+  @Local title: string = ''
 
   build() {
     Column() {
@@ -28,12 +29,19 @@ struct AddRecordPage {
       .padding({left: 30, right: 30, bottom: 15})
       .backgroundColor(Color.White)
 
+
+      TextInput({
+        placeholder: '请输入该记录标题',
+        text: $$this.title
+      })
+        .margin({top: 30, left: 20, right: 20})
+        .backgroundColor(Color.White)
       TextArea({
         placeholder: '记录此刻的感受',
         text: $$this.txt
       })
         .backgroundColor(Color.White)
-        .margin({top: 30, left: 20, right: 20})
+        .margin({top: 10, left: 20, right: 20})
         .height(200)
 
       Row() {
