@@ -5,11 +5,11 @@
         "name": "default",
         "type": "HarmonyOS",
         "material": {
-          "storePassword": "0000001A85ACE16C904C0BFDFE7994CFF306698BDC994BA2E0EE45D6341A4E4BC67144E30D38D51E85FF",
-          "certpath": "C:/Users/lenovo/Desktop/JoyFit/JoyFit-key/debug_chl.cer",
+          "storePassword": "0000001A6757D1850309B95672F3ABA956E3533FFEEBFEAE30938D166BB6BDC1FD2CB5AA70097936B4FC",
+          "certpath": "C:/Users/lenovo/Desktop/JoyFit/JoyFit-key/new.cer",
           "keyAlias": "JoyFit",
-          "keyPassword": "0000001AB2850EDF8686C93B49C9C3B87FCA3301C1EFAB9F9FD719D1D41A6ECB3ADC696F825E005079BE",
-          "profile": "C:/Users/lenovo/Desktop/JoyFit/JoyFit-key/JoyFitDebug.p7b",
+          "keyPassword": "0000001AC2EE44D2215F86CFB2F865A4B4BFAEEB0D4154F24E7FEF48B07F88EE2600D1613D6300141B94",
+          "profile": "C:/Users/lenovo/Desktop/JoyFit/JoyFit-key/new-debugDebug.p7b",
           "signAlg": "SHA256withECDSA",
           "storeFile": "C:/Users/lenovo/Desktop/JoyFit/JoyFit-key/.p12"
         }

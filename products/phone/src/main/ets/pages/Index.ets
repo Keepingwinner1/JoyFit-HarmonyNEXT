@@ -112,7 +112,7 @@ struct Index {
     let endDate = new Date();
     endDate.setDate(startDate.getDate()+1);
     test_workoutBuilder
-      .setPlanID('221,23,112') //以下两项为固定设置
+      .setPlanID('11,190,49') //以下两项为固定设置
       .setPlanState('NotStarted')
       .setUserID('1') //根据真实值传入
       .setPlanName('测试健身计划')  //以下方法当用户修改时可以再次调用传入新值
@@ -142,7 +142,7 @@ struct Index {
 
   uploadPlan(){
     let test_workoutBuilder= this.ex.createPlanBuilder();
-    //初始化动作
+    //初始化动作Action【】
     let actioninfo: actionInfo = new actionInfo();
     actioninfo.ActionName ='动作1'; //所选动作填入
     actioninfo.ActionID = '111'; //所选动作填入
@@ -170,7 +170,7 @@ struct Index {
       .setCoverPicture('url:test')
       .setStartDate(startDate)
       .setEndDate(endDate)
-      .setDayOfWeek("1#2#3")
+      .setDayOfWeek("5")
       .setDescription("这是一个666测试健身计划");
     test_workoutBuilder
       .setRestTimeBetweenSets(2)//下面属性设置只能直接跟在test_workoutBuilder后面调用
