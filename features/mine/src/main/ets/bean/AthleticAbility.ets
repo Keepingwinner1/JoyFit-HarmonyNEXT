@@ -9,6 +9,6 @@ export class AthleticAbility extends cloudDatabase.DatabaseObject{
   public PushUpNums : number| undefined;
   public SquatNums : number| undefined;
   public CrunchNums : number| undefined;
-  public LastUpdated : Date| undefined;
+  public LastUpdated : number| undefined;
 
 }

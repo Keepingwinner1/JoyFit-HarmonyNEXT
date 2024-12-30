@@ -11,7 +11,7 @@
           "keyPassword": "0000001AC2EE44D2215F86CFB2F865A4B4BFAEEB0D4154F24E7FEF48B07F88EE2600D1613D6300141B94",
           "profile": "C:/Users/lenovo/Desktop/JoyFit/JoyFit-key/new-debugDebug.p7b",
           "signAlg": "SHA256withECDSA",
-          "storeFile": "C:/Users/lenovo/Desktop/JoyFit/JoyFit-key/.p12"
+          "storeFile": "D:/SE/key/Debug-CYB.p12"
         }
       }
     ],

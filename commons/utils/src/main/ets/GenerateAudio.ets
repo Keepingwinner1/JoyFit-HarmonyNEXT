@@ -1,5 +1,5 @@
 import { webSocket } from '@kit.NetworkKit';
-import { fileIo } from '@kit.CoreFileKit';
+import { fileIo, WriteOptions } from '@kit.CoreFileKit';
 import { cloudStorage } from '@kit.CloudFoundationKit';
 import { BusinessError, request } from '@kit.BasicServicesKit';
 
@@ -59,17 +59,22 @@ interface ResponseMessage {
 
 // 唯一的task_id由外部传参，这样可以直接记录音频在云端的位置
 export const createWebSocketConnection = (taskId:string,userText: string) => {
+  // 写入二进制数据
+  let context = getContext();
+  let filesDir = context.cacheDir;
+  let cachefilePath= filesDir + '/.'+taskId+'.mp3';
+  let length=0;
   let taskStarted = false;
   const ws = webSocket.createWebSocket(); // 创建 WebSocket 连接
 
-  let options: webSocket.WebSocketRequestOptions | undefined;
-  if (options !=undefined) {
-    options.header = {
+  let options: webSocket.WebSocketRequestOptions = {
+    header: {
       Authorization: `bearer ${apiKey}`,
       'X-DashScope-DataInspection': 'enable'
-    };
-    options.caPath = "";
-  }
+    },
+    // 根据需要设置 caPath，留空字符串可能导致 SSL 错误
+    caPath: "" // 如果不需要自定义 CA 路径，可以省略或正确配置
+  };
 
   // 打开WebSocket连接
   ws.connect(url, options, (err: BusinessError, value: Object) => {
@@ -140,7 +145,7 @@ export const createWebSocketConnection = (taskId:string,userText: string) => {
                   } as HeaderOfTaskMessage,
                   payload: {
                     input: {
-                      text: userText,
+                      text: text,
                     },
                   }as Payload,
                 });
@@ -148,7 +153,7 @@ export const createWebSocketConnection = (taskId:string,userText: string) => {
 
                 ws.send(continueTaskMessage, (err: BusinessError, value: boolean) => {
                   if (!err) {
-                    console.log(`已发送continue-task，文本：${userText}`);
+                    console.log(`已发送continue-task，文本：${text}`);
                   } else {
                     console.error('发送continue-task消息失败:', err);
                   }
@@ -182,6 +187,38 @@ export const createWebSocketConnection = (taskId:string,userText: string) => {
           break;
         case 'task-finished':
           console.log('任务已完成');
+          //保存音频文件到云端
+          let CloudPath = 'audio/'+taskId+'.mp3';
+          let storageBucket: cloudStorage.StorageBucket = cloudStorage.bucket();
+
+          storageBucket.uploadFile(getContext(), {
+            localPath: cachefilePath,
+            cloudPath: CloudPath,
+          }).then((task: request.agent.Task) => {
+            task.on('progress', (progress) => {
+              console.info(`on progress ${JSON.stringify(progress)}`);
+            });
+            task.on('completed', (progress) => {
+              console.info(`on completed ${JSON.stringify(progress)}`);
+            });
+            task.on('failed', (progress) => {
+              console.error(`on failed ${JSON.stringify(progress)}`);
+            });
+            task.on('response', (response) => {
+              console.info(`on response ${JSON.stringify(response)}`);
+            });
+
+            // start task
+            task.start((err: BusinessError) => {
+              if (err) {
+                console.error(`Failed to start the uploadFile task, Code: ${err.code}, message: ${err.message}`);
+              } else {
+                console.info(`Succeeded in starting a uploadFile task.`);
+              }
+            });
+          }).catch((err: BusinessError) => {
+            console.error(`Upload file failed, Code: ${err.code}, message: ${err.message}`);
+          });
           break;
         case 'task-failed':
           console.error('任务失败：', message.header.error_message);
@@ -194,14 +231,15 @@ export const createWebSocketConnection = (taskId:string,userText: string) => {
       console.log('接收到二进制数据，正在写入文件...');
 
       //参考https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V13/js-apis-file-fs-V13#fswrite
-      // 写入二进制数据
-      let context = getContext();
-      let filesDir = context.cacheDir;
-      let cachefilePath= filesDir + '/.'+taskId+'.mp3';
+
       let file = fileIo.openSync(filesDir + '/.'+taskId+'.mp3', fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
+      length+=value.byteLength;
+      let option:WriteOptions={};
+      option.offset=length;
+
 
       // 将二进制数据写入文件
-      fileIo.write(file.fd, value).then((writeLen: number) => {
+      fileIo.write(file.fd, value,option).then((writeLen: number) => {
         console.info("write data to file succeed and size is:" + writeLen);
       }).catch((err: BusinessError) => {
         console.error("write data to file failed with error message: " + err.message + ", error code: " + err.code);
@@ -210,44 +248,12 @@ export const createWebSocketConnection = (taskId:string,userText: string) => {
       });
 
 
-      //保存音频文件到云端
-      let CloudPath = 'audio/'+taskId+'.mp3';
-      let storageBucket: cloudStorage.StorageBucket = cloudStorage.bucket();
-
-      storageBucket.uploadFile(getContext(), {
-        localPath: cachefilePath,
-        cloudPath: CloudPath,
-      }).then((task: request.agent.Task) => {
-        task.on('progress', (progress) => {
-          console.info(`on progress ${JSON.stringify(progress)}`);
-        });
-        task.on('completed', (progress) => {
-          console.info(`on completed ${JSON.stringify(progress)}`);
-        });
-        task.on('failed', (progress) => {
-          console.error(`on failed ${JSON.stringify(progress)}`);
-        });
-        task.on('response', (response) => {
-          console.info(`on response ${JSON.stringify(response)}`);
-        });
-
-        // start task
-        task.start((err: BusinessError) => {
-          if (err) {
-            console.error(`Failed to start the uploadFile task, Code: ${err.code}, message: ${err.message}`);
-          } else {
-            console.info(`Succeeded in starting a uploadFile task.`);
-          }
-        });
-      }).catch((err: BusinessError) => {
-        console.error(`Upload file failed, Code: ${err.code}, message: ${err.message}`);
-      });
-
 
     } else {
       console.error('接收到非字符串和非二进制数据的消息');
     }
-  });
+  }
+  );
 
 
   // 主动断开连接
@@ -256,7 +262,3 @@ export const createWebSocketConnection = (taskId:string,userText: string) => {
   });
 
 };
-
-
-
-
