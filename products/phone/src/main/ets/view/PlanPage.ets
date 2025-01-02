@@ -9,30 +9,33 @@ import { WorkoutPlan } from "exercise/src/main/ets/bean/WorkoutPlan"
 @ComponentV2
 export default struct PlanPage {
   @Local isWorkOut: boolean = true
-  @Local inProgressPlanList: WorkoutPlan[] = [new WorkoutPlan(), new WorkoutPlan()]
+  @Local inProgressPlanList: WorkoutPlan[] = []
   @Local notStartedPlanList: WorkoutPlan[] = [new WorkoutPlan()]
   @Local abandonedPlanList: WorkoutPlan[] = [new WorkoutPlan()]
   @Local completedPlanList: WorkoutPlan[] = [new WorkoutPlan()]
 
   private workoutPlanService: WorkoutPlanService = WorkoutPlanService.getInstance()
+  private emptyWorkoutPlan: WorkoutPlan = new WorkoutPlan()
 
   async aboutToAppear(): Promise<void> {
     try {
-      this.inProgressPlanList[0].PlanName = '腹肌撕裂者'
-      this.inProgressPlanList[0].CoverPicture = 'app.media.test_plan_cover'
-      this.inProgressPlanList[0].Tag = '#腹肌 #核心'
-      this.inProgressPlanList[0].TotalTime = 45
-      this.inProgressPlanList[0].PlanState = 'InProgress'
-      this.inProgressPlanList[0].Description = '本计划全程贯穿“燃脂”+“塑形”策略，非常适合体重适中的JoyFiter增强腹部肌肉'
-      this.inProgressPlanList[0].StartDate = new Date()
-      this.inProgressPlanList[0].EndDate = new Date()
-      this.inProgressPlanList[0].DayOfWeek = '0#1#4'
+      this.emptyWorkoutPlan.PlanState = 'NotStarted'
+      this.inProgressPlanList = await this.workoutPlanService.getInProgressPlan('2')
+      // this.inProgressPlanList[0].PlanName = '腹肌撕裂者'
+      // this.inProgressPlanList[0].CoverPicture = 'app.media.test_plan_cover'
+      // this.inProgressPlanList[0].Tag = '#腹肌 #核心'
+      // this.inProgressPlanList[0].TotalTime = 45
+      // this.inProgressPlanList[0].PlanState = 'InProgress'
+      // this.inProgressPlanList[0].Description = '本计划全程贯穿“燃脂”+“塑形”策略，非常适合体重适中的JoyFiter增强腹部肌肉'
+      // this.inProgressPlanList[0].StartDate = new Date()
+      // this.inProgressPlanList[0].EndDate = new Date()
+      // this.inProgressPlanList[0].DayOfWeek = '0#1#4'
 
-      this.inProgressPlanList[1].PlanName = '举重训练'
-      this.inProgressPlanList[1].CoverPicture = 'app.media.test_poster1'
-      this.inProgressPlanList[1].Tag = '#胸肌 #力量'
-      this.inProgressPlanList[1].TotalTime = 30
-      this.inProgressPlanList[1].PlanState = 'InProgress'
+      // this.inProgressPlanList[1].PlanName = '举重训练'
+      // this.inProgressPlanList[1].CoverPicture = 'app.media.test_poster1'
+      // this.inProgressPlanList[1].Tag = '#胸肌 #力量'
+      // this.inProgressPlanList[1].TotalTime = 30
+      // this.inProgressPlanList[1].PlanState = 'InProgress'
 
       this.notStartedPlanList[0].PlanName = '腹肌撕裂者'
       this.notStartedPlanList[0].CoverPicture = 'app.media.test_plan_cover'
@@ -51,7 +54,8 @@ export default struct PlanPage {
       this.completedPlanList[0].Tag = '#腹肌 #核心'
       this.completedPlanList[0].TotalTime = 45
       this.completedPlanList[0].PlanState = 'Completed'
-      //this.inProgressPlanList = await this.workoutPlanService.getInProgressPlan('')
+
+
     }
     catch (error) {
     }
@@ -60,10 +64,9 @@ export default struct PlanPage {
   build() {
     Column() {
       Swiper() {
-        Image($r('app.media.test_plan_cover'))
-        Image($r('app.media.test_poster1'))
-        Image($r('app.media.test_poster2'))
-        Image($r('app.media.test_poster1'))
+        Image($r('app.media.swipper1'))
+        Image($r('app.media.swipper2'))
+        Image($r('app.media.swipper3'))
       }
       .width('100%')
       .height(150)
@@ -128,7 +131,10 @@ export default struct PlanPage {
             }
             .onClick(() => {
               router.pushUrl({
-                url: "pages/CreatePlanPage"
+                url: "pages/CreatePlanPage",
+                params: {
+                  workoutPlan: this.emptyWorkoutPlan
+                }
               })
             })
 

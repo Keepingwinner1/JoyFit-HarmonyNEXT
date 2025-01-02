@@ -97,11 +97,27 @@ struct CreatePlanPage {
             .fontWeight(FontWeight.Bold)
             .backgroundColor("#ffeeeeee")
           Row() {
+            if(this.workoutPlan.CoverPicture!=undefined)
             Image($r(this.workoutPlan.CoverPicture))
               .height(80)
               .width(80)
               .borderRadius(15)
               .margin({right: 10})
+            else
+            Row() {
+              Text('+')
+                .fontSize(56)
+                .fontWeight(FontWeight.Lighter)
+            }
+            .margin({right: 10})
+            .backgroundColor(Color.White)
+            .width(80)
+            .height(80)
+            .justifyContent(FlexAlign.Center)
+            .borderRadius(20)
+            .borderWidth(1)
+            .borderColor('#95000000')
+            .borderStyle(BorderStyle.Dashed)
             TextArea({
               placeholder: '请输入计划描述...',
               text: $$this.workoutPlan.Description
