@@ -21,3 +21,4 @@ _generated
 local.properties
 oh-package-lock.json5
 route_map.json
+build-profile.json5
